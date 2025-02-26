@@ -52,39 +52,45 @@ export default () => {
 
   Route.group(() => {
     Route.get('/', 'Web/RemotesController.index').as('remote')
-    Route.get('/:idBuilding', 'Web/RemotesController.building').as('remote.building')
-    Route.get('/:idBuilding/:idRoom', 'Web/RemotesController.room').as('remote.room')
-    Route.get('/:idBuilding/:idRoom/:idItem', 'Web/RemotesController.item').as('remote.item')
-    Route.get('/:idBuilding/:idRoom/:idItem/log', 'Web/RemotesController.itemLog').as(
-      'remote.item.log'
-    )
-    Route.post('/:idBuilding/:idRoom/:idItem/on', 'Web/RemotesController.itemOn').as(
-      'remote.item.on'
-    )
-    Route.post('/:idBuilding/:idRoom/:idItem/off', 'Web/RemotesController.itemOff').as(
-      'remote.item.off'
-    )
-    Route.post('/:idBuilding/:idRoom/:idItem/swing', 'Web/RemotesController.itemSwing').as(
-      'remote.item.swing'
-    )
-    Route.post('/:idBuilding/:idRoom/:idItem/up', 'Web/RemotesController.itemUp').as(
-      'remote.item.up'
-    )
-    Route.post('/:idBuilding/:idRoom/:idItem/down', 'Web/RemotesController.itemDown').as(
-      'remote.item.down'
-    )
-    Route.post('/:idBuilding/:idRoom/:idItem/time-reset', 'Web/RemotesController.itemTimeReset').as(
-      'remote.item.time-reset'
-    )
-    Route.post('/:idBuilding/:idRoom/:idItem/time-set', 'Web/RemotesController.itemTimeSet').as(
-      'remote.item.time-set'
-    )
-    Route.post('/:idBuilding/:idRoom/:idItem/share', 'Web/RemotesController.itemShare').as(
-      'remote.item.share'
-    )
-    Route.post('/:idBuilding/:idRoom/:idItem/key-reset', 'Web/RemotesController.itemKeyReset').as(
-      'remote.item.key-reset'
-    )
+    Route.get('/:idBuilding', 'Web/RemotesController.building')
+      .as('remote.building')
+      .middleware('permissionCheck')
+    Route.get('/:idBuilding/:idRoom', 'Web/RemotesController.room')
+      .as('remote.room')
+      .middleware('permissionCheck')
+    Route.get('/:idBuilding/:idRoom/:idItem', 'Web/RemotesController.item')
+      .as('remote.item')
+      .middleware('permissionCheck')
+    Route.get('/:idBuilding/:idRoom/:idItem/log', 'Web/RemotesController.itemLog')
+      .as('remote.item.log')
+      .middleware('permissionCheck')
+    Route.post('/:idBuilding/:idRoom/:idItem/on', 'Web/RemotesController.itemOn')
+      .as('remote.item.on')
+      .middleware('permissionCheck')
+    Route.post('/:idBuilding/:idRoom/:idItem/off', 'Web/RemotesController.itemOff')
+      .as('remote.item.off')
+      .middleware('permissionCheck')
+    Route.post('/:idBuilding/:idRoom/:idItem/swing', 'Web/RemotesController.itemSwing')
+      .as('remote.item.swing')
+      .middleware('permissionCheck')
+    Route.post('/:idBuilding/:idRoom/:idItem/up', 'Web/RemotesController.itemUp')
+      .as('remote.item.up')
+      .middleware('permissionCheck')
+    Route.post('/:idBuilding/:idRoom/:idItem/down', 'Web/RemotesController.itemDown')
+      .as('remote.item.down')
+      .middleware('permissionCheck')
+    Route.post('/:idBuilding/:idRoom/:idItem/time-reset', 'Web/RemotesController.itemTimeReset')
+      .as('remote.item.time-reset')
+      .middleware('permissionCheck')
+    Route.post('/:idBuilding/:idRoom/:idItem/time-set', 'Web/RemotesController.itemTimeSet')
+      .as('remote.item.time-set')
+      .middleware('permissionCheck')
+    Route.post('/:idBuilding/:idRoom/:idItem/share', 'Web/RemotesController.itemShare')
+      .as('remote.item.share')
+      .middleware('permissionCheck')
+    Route.post('/:idBuilding/:idRoom/:idItem/key-reset', 'Web/RemotesController.itemKeyReset')
+      .as('remote.item.key-reset')
+      .middleware('permissionCheck')
   })
     .prefix('/remote')
     .middleware('auth')

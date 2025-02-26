@@ -46,4 +46,5 @@ Server.middleware.registerNamed({
   guest: () => import('App/Middleware/Guest'),
   role: () => import('App/Middleware/RoleMiddleware'),
   // SilentAuth: () => import('App/Middleware/silentAuth'),
+  permissionCheck: () => import('App/Middleware/PermissionCheck'),
 })
