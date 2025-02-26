@@ -58,9 +58,9 @@
           <li class="nav-item">
               <a class="nav-link fw-bold" data-bs-toggle="tab" id="log" href="#kt_tab_pane_2">Log</a>
           </li>
-          <li class="nav-item">
+          {{-- <li class="nav-item">
             <a class="nav-link fw-bold" data-bs-toggle="tab" id="share" href="#kt_tab_pane_3">Share</a>
-          </li>
+          </li> --}}
         </ul>
       
         <div class="tab-content" id="myTabContent">
@@ -156,7 +156,7 @@
                 </nav>
               </div>
           </div>
-          <div class="tab-pane fade" id="kt_tab_pane_3" role="tabpanel">
+          {{-- <div class="tab-pane fade" id="kt_tab_pane_3" role="tabpanel">
             <div class="d-flex justify-content-between align-items-center pt-5">
               <div>
                 <h5 class="mb-0 pb-0">Share</h5>
@@ -177,7 +177,7 @@
                 </button>
               </div>
             </div>            
-          </div>
+          </div> --}}
         </div> 
       </div>
     </div>
@@ -476,39 +476,56 @@ $(document).ready(function() {
               url: logURL,
               method: 'GET',
               success: function(response) {
-                  if (response.success) {
-                      const data = response.data.data;
-                      const meta = response.data.meta;
-                      const totalPages = meta.last_page;
+                if (response.success) {
+                const data = response.data.data;
+                const meta = response.data.meta;
+                const totalPages = meta.last_page;
+                const currentPage = meta.current_page;
 
-                      const tableBody = $('#logTable tbody');
-                      tableBody.empty();
-                      data.forEach(item => {
-                          tableBody.append(`
-                              <tr>
-                                  <td>${item.is_active ? 'Active' : 'Inactive'}</td>
-                                  <td>${new Date(item.created_at).toLocaleString()}</td>
-                              </tr>
-                          `);
-                      });
+                const tableBody = $('#logTable tbody');
+                tableBody.empty();
+                data.forEach(item => {
+                    tableBody.append(`
+                        <tr>
+                            <td>${item.is_active ? 'Active' : 'Inactive'}</td>
+                            <td>${new Date(item.created_at).toLocaleString()}</td>
+                        </tr>
+                    `);
+                });
 
-                      const pagination = $('#pagination');
-                      pagination.empty();
-                      
-                      if (meta.current_page > 1) {
-                          pagination.append(`<li class="page-item"><a class="page-link" href="#" data-page="${meta.current_page - 1}" data-url="${baseurl}">Previous</a></li>`);
-                      }
-                      
-                      for (let i = 1; i <= totalPages; i++) {
-                          pagination.append(`<li class="page-item ${i === meta.current_page ? 'active' : ''}"><a class="page-link" href="#" data-url="${baseurl}" data-page="${i}">${i}</a></li>`);
-                      }
-                      
-                      if (meta.current_page < totalPages) {
-                          pagination.append(`<li class="page-item"><a class="page-link" href="#" data-page="${meta.current_page + 1}" data-url="${baseurl}">Next</a></li>`);
-                      }
-                  } else {
-                      showToast('Error: Failed to load data');
-                  }
+                const pagination = $('#pagination');
+                pagination.empty();
+
+                const maxPagesToShow = 3;
+                let startPage = Math.max(1, currentPage - 2);
+                let endPage = Math.min(totalPages, startPage + maxPagesToShow - 1);
+
+                if (endPage - startPage + 1 < maxPagesToShow) {
+                    startPage = Math.max(1, endPage - maxPagesToShow + 1);
+                }
+
+                if (currentPage > 1) {
+                    pagination.append(`<li class="page-item"><a class="page-link" href="#" data-page="1" data-url="${baseurl}">First</a></li>`);
+                }
+
+                if (currentPage > 1) {
+                    pagination.append(`<li class="page-item"><a class="page-link" href="#" data-page="${currentPage - 1}" data-url="${baseurl}">Previous</a></li>`);
+                }
+
+                for (let i = startPage; i <= endPage; i++) {
+                    pagination.append(`<li class="page-item ${i === currentPage ? 'active' : ''}"><a class="page-link" href="#" data-url="${baseurl}" data-page="${i}">${i}</a></li>`);
+                }
+
+                if (currentPage < totalPages) {
+                    pagination.append(`<li class="page-item"><a class="page-link" href="#" data-page="${currentPage + 1}" data-url="${baseurl}">Next</a></li>`);
+                }
+
+                if (currentPage < totalPages) {
+                    pagination.append(`<li class="page-item"><a class="page-link" href="#" data-page="${totalPages}" data-url="${baseurl}">Last</a></li>`);
+                }
+            } else {
+                showToast('Error: Failed to load data');
+            }
               },
               error: function(xhr) {
                   showToast(`Failed to load data`);

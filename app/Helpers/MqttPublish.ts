@@ -37,19 +37,6 @@ export default class MqttPublish {
   ) {
     try {
       const data = await Item.findOrFail(item)
-      // const irCode = await IrCode.query()
-      //   .preload('device')
-      //   .where('deviceId', data.deviceId)
-      //   .where('variable', command)
-      //   .firstOrFail()
-
-      // const message = {
-      //   address: irCode.device.address,
-      //   command: irCode.command,
-      // }
-      // const messageJson = JSON.stringify(message)
-
-      // const messageJson = irCode.device.address + irCode.command.substring(2)
 
       const client = this.getClient()
       if (!client) {

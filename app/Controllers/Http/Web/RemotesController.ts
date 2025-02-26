@@ -20,11 +20,18 @@ export default class RemotesController {
     return await view.render('pages/remote/index', { data })
   }
 
-  public async building({ view, params }: HttpContextContract) {
-    const data = await Room.query()
-      .preload('building')
-      .orderBy('name', 'asc')
-      .where('building_id', params.idBuilding)
+  public async building({ view, params, auth }: HttpContextContract) {
+    const user = await auth.use('web').authenticate()
+    const data =
+      user.role === 'superadmin'
+        ? await Room.query()
+            .preload('building')
+            .orderBy('name', 'asc')
+            .where('building_id', params.idBuilding)
+        : await Room.query()
+            .preload('building')
+            .orderBy('name', 'asc')
+            .where('building_id', params.idBuilding)
     const building = await Building.findOrFail(params.idBuilding)
     return await view.render('pages/remote/building', { data, building })
   }
