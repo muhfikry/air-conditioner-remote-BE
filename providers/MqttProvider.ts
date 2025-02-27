@@ -33,6 +33,7 @@ export default class MqttProvider {
         username: Env.get('MQTT_USERNAME'),
         password: Env.get('MQTT_PASSWORD'),
         port: Env.get('MQTT_port'),
+        clientId: Env.get('MQTT_CLIENT_ID'),
       })
 
       client.on('connect', () => {
@@ -54,17 +55,6 @@ export default class MqttProvider {
 
     const items = await Database.from('items').select('code')
     if (items) {
-      const temperature = items.map((item) => item.code + '/temperature')
-      temperature.forEach((topic) => {
-        MqttClient.subscribe(topic, (err) => {
-          if (!err) {
-            console.log(`Subscribed to topic ${topic}`)
-          } else {
-            Logger.error('Failed to subscribe to topic %s: %j', topic, err) // Log error to file
-          }
-        })
-      })
-
       const status = items.map((item) => item.code + '/status')
       status.forEach((topic) => {
         MqttClient.subscribe(topic, (err) => {
@@ -79,20 +69,6 @@ export default class MqttProvider {
 
     // Print received messages to the terminal and update the database
     MqttClient.on('message', async (topic, message) => {
-      // Process only 'code/temperature' topics
-      if (topic.endsWith('/temperature')) {
-        const code = topic.split('/')[0]
-        const temperature = message.toString()
-
-        console.log(`Received message on topic ${topic}: ${temperature}`)
-
-        try {
-          await Database.from('items').where('code', code).update({ temperature })
-        } catch (error) {
-          Logger.error('Failed to update temperature for code %s: %j', code, error) // Log error to file
-        }
-      }
-
       if (topic.endsWith('/status')) {
         const code = topic.split('/')[0]
         const isActive = message.toString() === 'true' // Convert string to boolean

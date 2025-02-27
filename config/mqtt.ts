@@ -6,5 +6,6 @@ const mqttConfig: IClientOptions = {
   protocol: (process.env.MQTT_PROTOCOL as 'mqtt' | 'mqtts') || 'mqtt',
   username: process.env.MQTT_USERNAME || undefined,
   password: process.env.MQTT_PASSWORD || undefined,
+  clientId: process.env.MQTT_CLIENT_ID || undefined,
 }
 export default mqttConfig

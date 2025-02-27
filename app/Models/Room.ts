@@ -1,7 +1,16 @@
 import { DateTime } from 'luxon'
 import uuid from 'uuid-wand'
-import { BaseModel, beforeCreate, BelongsTo, belongsTo, column } from '@ioc:Adonis/Lucid/Orm'
+import {
+  BaseModel,
+  beforeCreate,
+  BelongsTo,
+  belongsTo,
+  column,
+  HasMany,
+  hasMany,
+} from '@ioc:Adonis/Lucid/Orm'
 import Building from './Building'
+import Item from './Item'
 
 export default class Room extends BaseModel {
   @beforeCreate()
@@ -29,4 +38,7 @@ export default class Room extends BaseModel {
 
   @column.dateTime({ autoCreate: true, autoUpdate: true })
   public updatedAt: DateTime
+
+  @hasMany(() => Item)
+  public item: HasMany<typeof Item>
 }

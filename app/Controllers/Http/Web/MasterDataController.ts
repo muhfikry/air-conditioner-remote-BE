@@ -128,10 +128,11 @@ export default class MasterDataController {
     const data = await Item.query()
       .preload('device')
       .preload('room', (query) => {
-        query.preload('building')
+        query.preload('building', (query) => {
+          query.orderBy('id')
+        })
       })
-      .orderBy('room_id')
-      .orderBy('code')
+      // .orderBy('code')
       .paginate(page, limit)
     const room = await Room.query().preload('building')
     const device = await Device.all()

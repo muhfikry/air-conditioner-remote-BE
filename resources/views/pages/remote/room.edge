@@ -4,9 +4,9 @@
 @set('subSubTitle', room.name)
 
 @section('content')
-<div class="row gx-5 g-md-10 g-xl-10 px-lg-20">
+<div class="row gx-5 px-lg-20">
   @each((item) in data)
-  <div class="col-lg-6">
+  <div class="col-lg-6 mb-6">
     <div class="loadDataButton card card-flush bgi-no-repeat bgi-size-contain bgi-position-x-end h-xl-100" data-url="{{ item.id }}">
       <div class="card-body rounded-2 bg-secondary text-gray-900 border border-gray-900 p-5 d-flex justify-content-between align-items-end" style="solid rgba(255, 255, 255, 0.3);background: rgba(0, 0, 0, 0.15);">
         <div class="d-flex align-items-center">
@@ -249,7 +249,7 @@ $(document).ready(function() {
                 }
             });
         }
-        setInterval(updateData, 2000);
+        setInterval(updateData, 1000);
         updateData();
     });
   @endeach

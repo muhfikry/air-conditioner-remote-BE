@@ -29,6 +29,23 @@ export default class RemotesController {
     return await view.render('pages/remote/building', { data, building })
   }
 
+  public async buildingStat({ params, response }: HttpContextContract) {
+    const rooms = await Room.query().where('building_id', params.idBuilding).preload('item')
+    const data = rooms.map((room) => {
+      const totalItem = room.item.length
+      const activeCount = room.item.filter((i) => i.isActive).length
+      const inactiveCount = totalItem - activeCount
+      return {
+        ...room.serialize(),
+        totalItem,
+        activeCount,
+        inactiveCount,
+      }
+    })
+
+    return ApiResponse.ok(response, data, 'Item retrieved successfully')
+  }
+
   public async room({ view, params }: HttpContextContract) {
     const data = await Item.query()
       .preload('room')
