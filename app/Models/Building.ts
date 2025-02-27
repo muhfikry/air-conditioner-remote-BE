@@ -2,6 +2,7 @@ import { DateTime } from 'luxon'
 import uuid from 'uuid-wand'
 import { BaseModel, beforeCreate, column, HasMany, hasMany } from '@ioc:Adonis/Lucid/Orm'
 import Permission from './Permission'
+import Room from './Room'
 
 export default class Building extends BaseModel {
   @beforeCreate()
@@ -26,4 +27,7 @@ export default class Building extends BaseModel {
 
   @hasMany(() => Permission)
   public permission: HasMany<typeof Permission>
+
+  @hasMany(() => Room)
+  public room: HasMany<typeof Room>
 }

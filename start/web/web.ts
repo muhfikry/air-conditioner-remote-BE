@@ -52,6 +52,7 @@ export default () => {
 
   Route.group(() => {
     Route.get('/', 'Web/RemotesController.index').as('remote')
+    Route.get('/stat', 'Web/RemotesController.indexStat').as('remote.stat')
     Route.get('/:idBuilding', 'Web/RemotesController.building')
       .as('remote.building')
       .middleware('permissionCheck:web')

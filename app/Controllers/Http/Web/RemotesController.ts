@@ -13,17 +13,52 @@ export default class RemotesController {
     const user = await auth.use('web').authenticate()
     const data =
       user.role === 'superadmin'
-        ? await Building.all()
-        : await Building.query().whereHas('permission', (permissionQuery) => {
-            permissionQuery.where('user_id', user.id)
-          })
+        ? await Building.query().orderBy('name')
+        : await Building.query()
+            .whereHas('permission', (permissionQuery) => {
+              permissionQuery.where('user_id', user.id)
+            })
+            .orderBy('name')
     return await view.render('pages/remote/index', { data })
+  }
+
+  public async indexStat({ response, auth }: HttpContextContract) {
+    const user = await auth.use('web').authenticate()
+    const buildings =
+      user.role === 'superadmin'
+        ? await Building.query().preload('room', (roomQuery) => {
+            roomQuery.preload('item')
+          })
+        : await Building.query()
+            .preload('room', (roomQuery) => {
+              roomQuery.preload('item')
+            })
+            .whereHas('permission', (permissionQuery) => {
+              permissionQuery.where('user_id', user.id)
+            })
+    const data = buildings.map((building) => {
+      let totalItem = 0
+      let activeCount = 0
+      building.room.forEach((r) => {
+        totalItem += r.item.length
+        activeCount += r.item.filter((i) => i.isActive).length
+      })
+      const inactiveCount = totalItem - activeCount
+      return {
+        ...building.serialize(),
+        totalItem,
+        activeCount,
+        inactiveCount,
+      }
+    })
+
+    return ApiResponse.ok(response, data, 'Item retrieved successfully')
   }
 
   public async building({ view, params }: HttpContextContract) {
     const data = await Room.query()
       .preload('building')
-      .orderBy('name', 'asc')
+      .orderBy('name')
       .where('building_id', params.idBuilding)
     const building = await Building.findOrFail(params.idBuilding)
     return await view.render('pages/remote/building', { data, building })
@@ -42,7 +77,6 @@ export default class RemotesController {
         inactiveCount,
       }
     })
-
     return ApiResponse.ok(response, data, 'Item retrieved successfully')
   }
 
@@ -50,7 +84,7 @@ export default class RemotesController {
     const data = await Item.query()
       .preload('room')
       .preload('device')
-      .orderBy('code', 'asc')
+      .orderBy('code')
       .where('room_id', params.idRoom)
     const building = await Building.findOrFail(params.idBuilding)
     const room = await Room.findOrFail(params.idRoom)
