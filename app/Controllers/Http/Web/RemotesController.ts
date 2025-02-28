@@ -7,6 +7,7 @@ import Item from 'App/Models/Item'
 import Log from 'App/Models/Log'
 import Room from 'App/Models/Room'
 import { random } from 'App/Helpers/Random'
+import StatSerialize from 'App/serializers/stat_serializer'
 
 export default class RemotesController {
   public async index({ view, auth }: HttpContextContract) {
@@ -52,7 +53,11 @@ export default class RemotesController {
       }
     })
 
-    return ApiResponse.ok(response, data, 'Item retrieved successfully')
+    return ApiResponse.ok(
+      response,
+      await StatSerialize.collection(data),
+      'Building Stat retrieved successfully'
+    )
   }
 
   public async building({ view, params }: HttpContextContract) {
@@ -77,7 +82,11 @@ export default class RemotesController {
         inactiveCount,
       }
     })
-    return ApiResponse.ok(response, data, 'Item retrieved successfully')
+    return ApiResponse.ok(
+      response,
+      await StatSerialize.collection(data),
+      'Room Stat retrieved successfully'
+    )
   }
 
   public async room({ view, params }: HttpContextContract) {
