@@ -8,13 +8,17 @@ export default class UsersController {
   public async index({ view, request }: HttpContextContract) {
     const page = request.input('page', 1)
     const limit = request.input('limit', 10)
+    const q = request.input('q', '')
     const data = await User.query()
+      .where((query) => {
+        query.where('name', 'LIKE', `%${q}%`).orWhere('email', 'LIKE', `%${q}%`)
+      })
       .preload('permission', (query) => {
         query.preload('building')
       })
       .paginate(page, limit)
     const building = await Building.all()
-    return await view.render('pages/user/index', { data, building })
+    return await view.render('pages/user/index', { data, building, q })
   }
 
   public async store({ request, session, response }: HttpContextContract) {

@@ -9,9 +9,13 @@ export default class MasterDataController {
   public async building({ view, request }: HttpContextContract) {
     const page = request.input('page', 1)
     const limit = request.input('limit', 10)
-    const data = await Building.query().paginate(page, limit)
-    // return data
-    return view.render('pages/master-data/building', { data })
+    const q = request.input('q', '')
+    const data = await Building.query()
+      .where((query) => {
+        query.where('name', 'LIKE', `%${q}%`).orWhere('description', 'LIKE', `%${q}%`)
+      })
+      .paginate(page, limit)
+    return view.render('pages/master-data/building', { data, q })
   }
 
   public async buildingStore({ request, session, response }: HttpContextContract) {
@@ -62,13 +66,17 @@ export default class MasterDataController {
   public async room({ view, request }: HttpContextContract) {
     const page = request.input('page', 1)
     const limit = request.input('limit', 10)
+    const q = request.input('q', '')
     const data = await Room.query()
+      .where((query) => {
+        query.where('name', 'LIKE', `%${q}%`).orWhere('description', 'LIKE', `%${q}%`)
+      })
       .preload('building')
       .orderBy('building_id')
       .orderBy('name')
       .paginate(page, limit)
     const building = await Building.all()
-    return view.render('pages/master-data/room', { data, building })
+    return view.render('pages/master-data/room', { data, building, q })
   }
 
   public async roomStore({ request, session, response }: HttpContextContract) {
@@ -125,7 +133,11 @@ export default class MasterDataController {
   public async item({ view, request }: HttpContextContract) {
     const page = request.input('page', 1)
     const limit = request.input('limit', 10)
+    const q = request.input('q', '')
     const data = await Item.query()
+      .where((query) => {
+        query.where('code', 'LIKE', `%${q}%`).orWhere('description', 'LIKE', `%${q}%`)
+      })
       .preload('device')
       .preload('room', (query) => {
         query.preload('building', (query) => {
@@ -136,7 +148,7 @@ export default class MasterDataController {
       .paginate(page, limit)
     const room = await Room.query().preload('building')
     const device = await Device.all()
-    return view.render('pages/master-data/item', { data, room, device })
+    return view.render('pages/master-data/item', { data, room, device, q })
   }
 
   public async itemStore({ request, session, response }: HttpContextContract) {

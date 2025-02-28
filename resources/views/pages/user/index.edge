@@ -82,9 +82,9 @@
           </div>
         </div>
         <form method="GET" class="card-title">
-          <input type="hidden" name="page" value="">
+          <input type="hidden" name="page" value="1">
           <div class="d-flex align-items-center position-relative my-1">
-            <input type="text"  class="form-control form-control-solid  ps-5 rounded" name="q" value="" placeholder="Search" />
+            <input type="text"  class="form-control form-control-solid  ps-5 rounded" name="q" value="{{ q }}" placeholder="Search" />
           </div>
           <button class="btn btn-dark btn-icon ms-2" type="submit" id="button-addon2">
             <span class="svg-icon svg-icon-3">
@@ -179,7 +179,7 @@
                   </li>
               @else
                   <li class="page-item previous">
-                      <a href="{{ route('master-data.building')+data.getPreviousPageUrl() }}" class="page-link bg-light"><i class="previous"></i></a>
+                      <a href="{{ q ? route('user')+data.getPreviousPageUrl()+'&q='+q : route('user')+data.getPreviousPageUrl() }}" class="page-link bg-light"><i class="previous"></i></a>
                   </li>
               @endif
       
@@ -194,7 +194,7 @@
       
               @each( link in data.getUrlsForRange(data.firstPage, data.lastPage))
               <li class="page-item {{ link.isActive ? 'bg-secondary rounded' : ''}}">
-                  <a class="page-link" href="{{ route('master-data.building')+link.url }}">{{ link.page }}</a>
+                  <a class="page-link" href="{{ q ? route('user')+link.url+'&q='+q : route('user')+link.url }}">{{ link.page }}</a>
               </li>
               @endeach
       
@@ -206,7 +206,7 @@
       
               @if (data.hasMorePages)
                   <li class="page-item next">
-                      <a href="{{ route('master-data.building')+data.getNextPageUrl() }}" class="page-link bg-light"><i class="next"></i></a>
+                      <a href="{{ q ? route('user')+data.getNextPageUrl()+'&q='+q : route('user')+data.getNextPageUrl() }}" class="page-link bg-light"><i class="next"></i></a>
                   </li>
               @else
                   <li class="page-item next disabled">
