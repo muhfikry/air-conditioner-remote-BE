@@ -35,6 +35,7 @@
       "@adonisjs/lucid",
       "@adonisjs/auth",
       "@adonisjs/mail",
+      "@adonisjs/redis"
     ]
   }
 }

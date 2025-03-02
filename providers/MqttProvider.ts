@@ -3,6 +3,7 @@ import mqtt from 'mqtt'
 import Env from '@ioc:Adonis/Core/Env'
 import { DatabaseContract } from '@ioc:Adonis/Lucid/Database'
 import Logger from '@ioc:Adonis/Core/Logger'
+import Redis from '@ioc:Adonis/Addons/Redis'
 /*
 |--------------------------------------------------------------------------
 | Provider
@@ -51,6 +52,7 @@ export default class MqttProvider {
 
   public async boot() {
     const MqttClient = this.app.container.use('Mqtt')
+    const Redis = this.app.container.use('Adonis/Addons/Redis')
     const Database = this.app.container.use('Adonis/Lucid/Database') as DatabaseContract
 
     const items = await Database.from('items').select('code')
@@ -71,20 +73,20 @@ export default class MqttProvider {
     MqttClient.on('message', async (topic, message) => {
       if (topic.endsWith('/status')) {
         const code = topic.split('/')[0]
-        const isActive = message.toString() === 'true' // Convert string to boolean
-
-        console.log(`Received message on topic ${topic}: ${isActive}`)
+        const isActive = message.toString() === 'true'
 
         try {
-          if (isActive === false) {
-            await Database.from('items')
-              .where('code', code)
-              .update({ is_active: isActive, temperature: 16 })
-          } else {
-            await Database.from('items').where('code', code).update({ is_active: isActive })
+          const cachedStatus = await Redis.get(`status:${code}`)
+
+          if (cachedStatus !== null && JSON.parse(cachedStatus) === isActive) {
+            console.log(`No change for ${code}, skipping update`)
+            return
           }
+          await Database.from('items').where('code', code).update({ is_active: isActive })
+          await Redis.set(`status:${code}`, JSON.stringify(isActive))
+          console.log(`Updated ${code} to ${isActive}`)
         } catch (error) {
-          Logger.error('Failed to update status for code %s: %j', code, error) // Log error to file
+          Logger.error('Failed to update status for code %s: %j', code, error)
         }
       }
     })
