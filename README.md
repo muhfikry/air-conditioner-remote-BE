@@ -45,12 +45,19 @@ After confirming that your system meets the requirements, follow these steps to 
     node ace db:seed
     ```
 
-## cronjob
+    5. Seed the database with initial data by running:
 
     ```bash
-* * * * * cd /path/to/project && node ace scheduler:run >> /var/log/scheduler.log 2>&1
+    node ace db:seed
     ```
 
+## cronjob
+
+    setup cron job for task scheduler
+
+    ```bash
+    * * * * * cd /path/to/project && node ace scheduler:run >> /var/log/scheduler.log 2>&1
+    ```
 
 ## API Doc
 
