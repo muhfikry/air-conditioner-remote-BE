@@ -45,6 +45,13 @@ After confirming that your system meets the requirements, follow these steps to 
     node ace db:seed
     ```
 
+## cronjob
+
+    ```bash
+* * * * * cd /path/to/project && node ace scheduler:run >> /var/log/scheduler.log 2>&1
+    ```
+
+
 ## API Doc
 
 Application Programming Interface (API) documentation for mobile applications:

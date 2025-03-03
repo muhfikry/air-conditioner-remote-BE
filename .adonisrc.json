@@ -5,7 +5,8 @@
     "@adonisjs/core/build/commands/index.js",
     "@adonisjs/repl/build/commands",
     "@adonisjs/lucid/build/commands",
-    "@adonisjs/mail/build/commands"
+    "@adonisjs/mail/build/commands",
+    "adonis5-scheduler/build/commands"
   ],
   "exceptionHandlerNamespace": "App/Exceptions/Handler",
   "aliases": {
@@ -29,7 +30,8 @@
     "@adonisjs/mail",
     "./providers/MqttProvider",
     "@adonisjs/redis",
-    "./providers/JobProvider"
+    "./providers/JobProvider",
+    "adonis5-scheduler"
   ],
   "metaFiles": [
     {

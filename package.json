@@ -76,6 +76,7 @@
     "@adonisjs/view": "^6.2.0",
     "@maxmind/geoip2-node": "^5.0.0",
     "@types/uuid": "^9.0.7",
+    "adonis5-scheduler": "^2.1.1",
     "axios": "^1.6.5",
     "luxon": "^3.4.4",
     "mqtt": "^5.10.0",
