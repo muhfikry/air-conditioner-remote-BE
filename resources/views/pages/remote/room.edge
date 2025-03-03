@@ -58,9 +58,9 @@
           <li class="nav-item">
               <a class="nav-link fw-bold" data-bs-toggle="tab" id="log" href="#kt_tab_pane_2">Log</a>
           </li>
-          {{-- <li class="nav-item">
+          <li class="nav-item">
             <a class="nav-link fw-bold" data-bs-toggle="tab" id="share" href="#kt_tab_pane_3">Share</a>
-          </li> --}}
+          </li>
         </ul>
       
         <div class="tab-content" id="myTabContent">
@@ -156,7 +156,7 @@
                 </nav>
               </div>
           </div>
-          {{-- <div class="tab-pane fade" id="kt_tab_pane_3" role="tabpanel">
+          <div class="tab-pane fade" id="kt_tab_pane_3" role="tabpanel">
             <div class="d-flex justify-content-between align-items-center pt-5">
               <div>
                 <h5 class="mb-0 pb-0">Share</h5>
@@ -177,7 +177,7 @@
                 </button>
               </div>
             </div>            
-          </div> --}}
+          </div>
         </div> 
       </div>
     </div>
@@ -229,334 +229,365 @@ $(document).ready(function() {
 </script>
 
 <script>
-  @each((item) in data)
-    $(document).ready(function() {
-        function updateData() {
-            var url = "/remote/{{building.id}}/{{room.id}}/{{item.id}}";
+    @each((item) in data)
+        $(function() {
+            function updateData() {
+                const url = "/remote/{{building.id}}/{{room.id}}/{{item.id}}";
+                $.ajax({
+                    url: url,
+                    method: 'GET',
+                    success: function(response) {
+                        const statusBadge = response.data.is_active
+                            ? `
+                                <span class="badge badge-light-success">
+                                    <span class="badge badge-success badge-circle w-10px h-10px me-2"></span>
+                                    Active
+                                </span>
+                              `
+                            : `
+                                <span class="badge badge-light-danger">
+                                    <span class="badge badge-danger badge-circle w-10px h-10px me-2"></span>
+                                    Inactive
+                                </span>
+                              `;
+                        $('#{{item.id}}').html(statusBadge);
+                    },
+                    error: function(xhr) {
+                        console.error('Error fetching data:', xhr);
+                    }
+                });
+            }
 
-            $.ajax({
-                url: url,
-                method: 'GET',
-                success: function(response) {
-                  var statusBadge = response.data.is_active 
-                              ? '<span class="badge badge-light-success"><span class="badge badge-success badge-circle w-10px h-10px me-2"></span> Active</span>'
-                              : '<span class="badge badge-light-danger"><span class="badge badge-danger badge-circle w-10px h-10px me-2"></span> Inactive</span>';
-
-                    $('#{{item.id}}').html(statusBadge)
-                },
-                error: function(xhr) {
-                    console.error('Error fetching data:', xhr);
-                }
-            });
-        }
-        setInterval(updateData, 1000);
-        updateData();
-    });
-  @endeach
+            setInterval(updateData, 1000);
+            updateData();
+        });
+    @endeach
 </script>
 
 <script>
-  $(document).ready(function() {
-      function loadData(url) {
-          var buildingId = "{{building.id}}";
-          var roomId = "{{room.id}}";
-          var baseurl = '/remote/' + buildingId + '/' + roomId + '/' + url;
-          fetchData(baseurl, 1);
-          
-          $.ajax({
-              url: baseurl,
-              method: 'GET',
-              success: function(response) {
-                  const data = response.data;
-                  $('#header .title .code').text(data.code);
-                  $('#header .title .device').text(data.device.merk);
-                  $('#item .code').text(data.code);
-                  $('#item .device').first().text(data.device.merk);
-                  // Mengatur status tombol On/Off
-                  if(data.is_active){
-                      $('#item .turn').html(`
-                          <button class="btn btn-icon bg-white rounded-circle hover-scale text-danger mt-7 mt-md-0" id="off">
-                              <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" fill="currentColor" class="bi bi-power" viewBox="0 0 16 16">
-                                  <path d="M7.5 1v7h1V1z"/>
-                                  <path d="M3 8.812a5 5 0 0 1 2.578-4.375l-.485-.874A6 6 0 1 0 11 3.616l-.501.865A5 5 0 1 1 3 8.812"/>
-                              </svg>
-                          </button>
-                      `);
-                      $('#display .temperature').html(data.temperature + ' &deg;C');
-                  } else {
-                      $('#item .turn').html(`
-                          <button class="btn btn-icon bg-white rounded-circle hover-scale text-success mt-7 mt-md-0" id="on">
-                              <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" fill="currentColor" class="bi bi-power" viewBox="0 0 16 16">
-                                  <path d="M7.5 1v7h1V1z"/>
-                                  <path d="M3 8.812a5 5 0 0 1 2.578-4.375l-.485-.874A6 6 0 1 0 11 3.616l-.501.865A5 5 0 1 1 3 8.812"/>
-                              </svg>
-                          </button>
-                      `);
-                      $('#display .temperature').html('-');
-                  }
-                  
-                  if (data.schedule) {
-                      $('#schedule input[type="time"]').val(data.schedule);
-                  } else {
-                      $('#schedule input[type="time"]').val('');
-                  }
+    $(function() {
+        /**
+         * Memuat data dan status AC berdasarkan URL yang diberikan
+         * @param {string} url - URL untuk memuat data (mis. code AC tertentu)
+         */
+        function loadData(url) {
+            const buildingId = "{{building.id}}";
+            const roomId = "{{room.id}}";
+            const baseurl = `/remote/${buildingId}/${roomId}/${url}`;
 
-                  if (data.is_publish) {
-                    $('.resetkey').removeAttr('disabled');
-                  }else{
-                    $('.resetkey').attr('disabled', 'disabled');
-                  }
+            fetchData(baseurl, 1);
 
-                  $('#shareToggle').prop('checked', data.is_publish || false);
+            $.ajax({
+                url: baseurl,
+                method: 'GET',
+                success: function(response) {
+                    const data = response.data;
 
-                  $('#key-link').val("{{request.protocol()}}://{{request.host()}}/public/"+data.id+"/"+data.key)
+                    $('#header .title .code').text(data.code);
+                    $('#header .title .device').text(data.device.merk);
+                    $('#item .code').text(data.code);
+                    $('#item .device').first().text(data.device.merk);
 
-                  // Event handler untuk tombol On
-                  $('#on').off('click').on('click', function() {
-                      const onURL = baseurl + '/on';
-                      $.ajax({
-                          url: onURL,
-                          method: 'POST',
-                          success: function(response) {
-                              loadData(url);
-                          },
-                          error: function(xhr) {
-                              showToast(`${xhr.responseJSON.message || 'an error occured'}`);
-                          }
-                      });
-                  });
+                    if (data.is_active) {
+                        $('#item .turn').html(`
+                            <button class="btn btn-icon bg-white rounded-circle hover-scale text-danger mt-7 mt-md-0" id="off">
+                                <svg xmlns="http://www.w3.org/2000/svg"
+                                     width="28" height="28"
+                                     fill="currentColor"
+                                     class="bi bi-power"
+                                     viewBox="0 0 16 16">
+                                    <path d="M7.5 1v7h1V1z"/>
+                                    <path d="M3 8.812a5 5 0 0 1 2.578-4.375l-.485-.874A6 6 0 1 0 11 3.616l-.501.865A5 5 0 1 1 3 8.812"/>
+                                </svg>
+                            </button>
+                        `);
+                        $('#display .temperature').html(`${data.temperature} &deg;C`);
+                    } else {
+                        $('#item .turn').html(`
+                            <button class="btn btn-icon bg-white rounded-circle hover-scale text-success mt-7 mt-md-0" id="on">
+                                <svg xmlns="http://www.w3.org/2000/svg"
+                                     width="28" height="28"
+                                     fill="currentColor"
+                                     class="bi bi-power"
+                                     viewBox="0 0 16 16">
+                                    <path d="M7.5 1v7h1V1z"/>
+                                    <path d="M3 8.812a5 5 0 0 1 2.578-4.375l-.485-.874A6 6 0 1 0 11 3.616l-.501.865A5 5 0 1 1 3 8.812"/>
+                                </svg>
+                            </button>
+                        `);
+                        $('#display .temperature').html('-');
+                    }
 
-                  // Event handler untuk tombol Off
-                  $('#off').off('click').on('click', function() {
-                      const offURL = baseurl + '/off';
-                      $.ajax({
-                          url: offURL,
-                          method: 'POST',
-                          success: function(response) {
-                              loadData(url);
-                          },
-                          error: function(xhr) {
-                              showToast(`${xhr.responseJSON.message || 'an error occured'}`);
-                          }
-                      });
-                  });
+                    if (data.schedule) {
+                        $('#schedule input[type="time"]').val(data.schedule);
+                    } else {
+                        $('#schedule input[type="time"]').val('');
+                    }
 
-                  // Event handler untuk tombol Swing
-                  $('#swing').off('click').on('click', function() {
-                      const swingURL = baseurl + '/swing';
-                      $.ajax({
-                          url: swingURL,
-                          method: 'POST',
-                          success: function(response) {
-                              loadData(url);
-                          },
-                          error: function(xhr) {
-                              showToast(`${xhr.responseJSON.message || 'an error occured'}`);
-                          }
-                      });
-                  });
+                    if (data.is_publish) {
+                        $('.resetkey').removeAttr('disabled');
+                    } else {
+                        $('.resetkey').attr('disabled', 'disabled');
+                    }
 
-                  // Event handler untuk tombol Up
-                  $('#up').off('click').on('click', function() {
-                      const upURL = baseurl + '/up';
-                      $.ajax({
-                          url: upURL,
-                          method: 'POST',
-                          success: function(response) {
-                              loadData(url);
-                          },
-                          error: function(xhr) {
-                              showToast(`${xhr.responseJSON.message || 'an error occured'}`);
-                          }
-                      });
-                  });
+                    $('#shareToggle').prop('checked', data.is_publish || false);
+                    $('#key-link').val("{{request.protocol()}}://{{request.host()}}/public/" + data.id + "/" + data.key);
 
-                  // Event handler untuk tombol Down
-                  $('#down').off('click').on('click', function() {
-                      const downURL = baseurl + '/down';
-                      $.ajax({
-                          url: downURL,
-                          method: 'POST',
-                          success: function(response) {
-                              loadData(url);
-                          },
-                          error: function(xhr) {
-                              showToast(`${xhr.responseJSON.message || 'an error occured'}`);
-                          }
-                      });
-                  });
+                    $('#on').off('click').on('click', function() {
+                        const onURL = baseurl + '/on';
+                        $.ajax({
+                            url: onURL,
+                            method: 'POST',
+                            success: function() {
+                                loadData(url);
+                            },
+                            error: function(xhr) {
+                                showToast(xhr.responseJSON.message || 'an error occured');
+                            }
+                        });
+                    });
 
-                  // Event handler untuk tombol Reset
-                  $('#reset').off('click').on('click', function() {
-                      const resetURL = baseurl + '/time-reset';
-                      $.ajax({
-                          url: resetURL,
-                          method: 'POST',
-                          success: function(response) {
-                              loadData(url);
-                          },
-                          error: function(xhr) {
-                              showToast(`${xhr.responseJSON.message || 'an error occured'}`);
-                          }
-                      });
-                  });
+                    $('#off').off('click').on('click', function() {
+                        const offURL = baseurl + '/off';
+                        $.ajax({
+                            url: offURL,
+                            method: 'POST',
+                            success: function() {
+                                loadData(url);
+                            },
+                            error: function(xhr) {
+                                showToast(xhr.responseJSON.message || 'an error occured');
+                            }
+                        });
+                    });
 
-                  // Event handler untuk input waktu
-                  $('#time').off('change').on('change', function() {
-                      const setTimeURL = baseurl + '/time-set';
-                      const timeValue = $(this).val();
-                      $.ajax({
-                          url: setTimeURL,
-                          method: 'POST',
-                          contentType: 'application/json',
-                          data: JSON.stringify({ time: timeValue }),
-                          success: function(response) {
-                              $('#schedule input[type="time"]').val(timeValue);
-                          },
-                          error: function(xhr) {
-                              showToast(`${xhr.responseJSON.message || 'an error occured'}`);
-                          }
-                      });
-                  });
+                    $('#swing').off('click').on('click', function() {
+                        const swingURL = baseurl + '/swing';
+                        $.ajax({
+                            url: swingURL,
+                            method: 'POST',
+                            success: function() {
+                                loadData(url);
+                            },
+                            error: function(xhr) {
+                                showToast(xhr.responseJSON.message || 'an error occured');
+                            }
+                        });
+                    });
 
-                  // Event handler untuk toggle Share
-                  $('#shareToggle').off('change').on('change', function() {
-                      var isChecked = $(this).is(':checked');
-                      var shareURL = baseurl + '/share';
+                    $('#up').off('click').on('click', function() {
+                        const upURL = baseurl + '/up';
+                        $.ajax({
+                            url: upURL,
+                            method: 'POST',
+                            success: function() {
+                                loadData(url);
+                            },
+                            error: function(xhr) {
+                                showToast(xhr.responseJSON.message || 'an error occured');
+                            }
+                        });
+                    });
 
-                      var data = {
-                          switch: isChecked
-                      };
+                    $('#down').off('click').on('click', function() {
+                        const downURL = baseurl + '/down';
+                        $.ajax({
+                            url: downURL,
+                            method: 'POST',
+                            success: function() {
+                                loadData(url);
+                            },
+                            error: function(xhr) {
+                                showToast(xhr.responseJSON.message || 'an error occured');
+                            }
+                        });
+                    });
 
-                      $.ajax({
-                          url: shareURL,
-                          type: 'POST',
-                          contentType: 'application/json',
-                          data: JSON.stringify(data),
-                          success: function(response) {
-                            loadData(url);
-                          },
-                          error: function(xhr, status, error) {
-                              showToast(`${xhr.responseJSON.message || 'an error occured'}`);
-                              $('#shareToggle').prop('checked', !isChecked);
-                          }
-                      });
-                  });
+                    $('#reset').off('click').on('click', function() {
+                        const resetURL = baseurl + '/time-reset';
+                        $.ajax({
+                            url: resetURL,
+                            method: 'POST',
+                            success: function() {
+                                loadData(url);
+                            },
+                            error: function(xhr) {
+                                showToast(xhr.responseJSON.message || 'an error occured');
+                            }
+                        });
+                    });
 
-                  $('#key-reset').off('click').on('click', function() {
-                      const resetURL = baseurl + '/key-reset';
-                      $.ajax({
-                          url: resetURL,
-                          method: 'POST',
-                          success: function(response) {
-                              loadData(url);
-                          },
-                          error: function(xhr) {
-                              showToast(`${xhr.responseJSON.message || 'an error occured'}`);
-                          }
-                      });
-                  });
-              },
-              error: function(xhr) {
-                  showToast(`an error occured`);
-              }
-          });
-          
-          $('#remote').off('click').on('click', function() {
-              loadData(url);
-          });
-      }
+                    $('#time').off('change').on('change', function() {
+                        const setTimeURL = baseurl + '/time-set';
+                        const timeValue = $(this).val();
+                        $.ajax({
+                            url: setTimeURL,
+                            method: 'POST',
+                            contentType: 'application/json',
+                            data: JSON.stringify({ time: timeValue }),
+                            success: function() {
+                                $('#schedule input[type="time"]').val(timeValue);
+                            },
+                            error: function(xhr) {
+                                showToast(xhr.responseJSON.message || 'an error occured');
+                            }
+                        });
+                    });
 
-      // Fungsi untuk mengambil data log dan menangani pagination
-      let currentPage = 1;
-      const rowsPerPage = 10;
-      function fetchData(baseurl, page) {
-          const logURL = `${baseurl}/log?page=${page}`;
-          $.ajax({
-              url: logURL,
-              method: 'GET',
-              success: function(response) {
-                if (response.success) {
-                const data = response.data.data;
-                const meta = response.data.meta;
-                const totalPages = meta.last_page;
-                const currentPage = meta.current_page;
+                    $('#shareToggle').off('change').on('change', function() {
+                        const isChecked = $(this).is(':checked');
+                        const shareURL  = baseurl + '/share';
+                        $.ajax({
+                            url: shareURL,
+                            type: 'POST',
+                            contentType: 'application/json',
+                            data: JSON.stringify({ switch: isChecked }),
+                            success: function() {
+                                loadData(url);
+                            },
+                            error: function(xhr) {
+                                showToast(xhr.responseJSON.message || 'an error occured');
+                                $('#shareToggle').prop('checked', !isChecked);
+                            }
+                        });
+                    });
 
-                const tableBody = $('#logTable tbody');
-                tableBody.empty();
-                data.forEach(item => {
-                    tableBody.append(`
-                        <tr>
-                            <td>${item.is_active ? 'Active' : 'Inactive'}</td>
-                            <td>${new Date(item.created_at).toLocaleString()}</td>
-                        </tr>
-                    `);
-                });
-
-                const pagination = $('#pagination');
-                pagination.empty();
-
-                const maxPagesToShow = 3;
-                let startPage = Math.max(1, currentPage - 2);
-                let endPage = Math.min(totalPages, startPage + maxPagesToShow - 1);
-
-                if (endPage - startPage + 1 < maxPagesToShow) {
-                    startPage = Math.max(1, endPage - maxPagesToShow + 1);
+                    $('#key-reset').off('click').on('click', function() {
+                        const resetURL = baseurl + '/key-reset';
+                        $.ajax({
+                            url: resetURL,
+                            method: 'POST',
+                            success: function() {
+                                loadData(url);
+                            },
+                            error: function(xhr) {
+                                showToast(xhr.responseJSON.message || 'an error occured');
+                            }
+                        });
+                    });
+                },
+                error: function() {
+                    showToast('an error occured');
                 }
+            });
 
-                if (currentPage > 1) {
-                    pagination.append(`<li class="page-item"><a class="page-link" href="#" data-page="1" data-url="${baseurl}">First</a></li>`);
-                }
+            $('#remote').off('click').on('click', function() {
+                loadData(url);
+            });
+        }
 
-                if (currentPage > 1) {
-                    pagination.append(`<li class="page-item"><a class="page-link" href="#" data-page="${currentPage - 1}" data-url="${baseurl}">Previous</a></li>`);
-                }
+        /**
+         * Mengambil data log dengan pagination
+         * @param {string} baseurl - Base URL untuk mengambil data log
+         * @param {number} page - Nomor halaman yang akan diambil
+         */
+        function fetchData(baseurl, page) {
+            const logURL = `${baseurl}/log?page=${page}`;
+            $.ajax({
+                url: logURL,
+                method: 'GET',
+                success: function(response) {
+                    if (response.success) {
+                        const data       = response.data.data;
+                        const meta       = response.data.meta;
+                        const totalPages = meta.last_page;
+                        const current    = meta.current_page;
 
-                for (let i = startPage; i <= endPage; i++) {
-                    pagination.append(`<li class="page-item ${i === currentPage ? 'active' : ''}"><a class="page-link" href="#" data-url="${baseurl}" data-page="${i}">${i}</a></li>`);
-                }
+                        const tableBody = $('#logTable tbody');
+                        tableBody.empty();
 
-                if (currentPage < totalPages) {
-                    pagination.append(`<li class="page-item"><a class="page-link" href="#" data-page="${currentPage + 1}" data-url="${baseurl}">Next</a></li>`);
-                }
+                        data.forEach(item => {
+                            tableBody.append(`
+                                <tr>
+                                    <td>${item.is_active ? 'Active' : 'Inactive'}</td>
+                                    <td>${new Date(item.created_at).toLocaleString()}</td>
+                                </tr>
+                            `);
+                        });
 
-                if (currentPage < totalPages) {
-                    pagination.append(`<li class="page-item"><a class="page-link" href="#" data-page="${totalPages}" data-url="${baseurl}">Last</a></li>`);
+                        const pagination     = $('#pagination');
+                        const maxPagesToShow = 3;
+                        let startPage        = Math.max(1, current - 2);
+                        let endPage          = Math.min(totalPages, startPage + maxPagesToShow - 1);
+
+                        pagination.empty();
+
+                        if ((endPage - startPage + 1) < maxPagesToShow) {
+                            startPage = Math.max(1, endPage - maxPagesToShow + 1);
+                        }
+
+                        if (current > 1) {
+                            pagination.append(`
+                                <li class="page-item">
+                                    <a class="page-link" href="#" data-page="1" data-url="${baseurl}">First</a>
+                                </li>
+                            `);
+                            pagination.append(`
+                                <li class="page-item">
+                                    <a class="page-link" href="#" data-page="${current - 1}" data-url="${baseurl}">Previous</a>
+                                </li>
+                            `);
+                        }
+
+                        for (let i = startPage; i <= endPage; i++) {
+                            pagination.append(`
+                                <li class="page-item ${i === current ? 'active' : ''}">
+                                    <a class="page-link" href="#" data-url="${baseurl}" data-page="${i}">${i}</a>
+                                </li>
+                            `);
+                        }
+
+                        if (current < totalPages) {
+                            pagination.append(`
+                                <li class="page-item">
+                                    <a class="page-link" href="#" data-page="${current + 1}" data-url="${baseurl}">Next</a>
+                                </li>
+                            `);
+                            pagination.append(`
+                                <li class="page-item">
+                                    <a class="page-link" href="#" data-page="${totalPages}" data-url="${baseurl}">Last</a>
+                                </li>
+                            `);
+                        }
+                    } else {
+                        showToast('Error: Failed to load data');
+                    }
+                },
+                error: function() {
+                    showToast('Failed to load data');
                 }
-            } else {
-                showToast('Error: Failed to load data');
+            });
+        }
+
+        let currentPage = 1;
+
+        $(document).on('click', '#pagination .page-link', function(e) {
+            e.preventDefault();
+            const page = $(this).data('page');
+            const url  = $(this).data('url');
+
+            if (page && page !== currentPage) {
+                currentPage = page;
+                fetchData(url, currentPage);
             }
-              },
-              error: function(xhr) {
-                  showToast(`Failed to load data`);
-              }
-          });
-      }
+        });
 
-      // Event handler untuk pagination
-      $(document).on('click', '#pagination .page-link', function(e) {
-          e.preventDefault();
-          const page = $(this).data('page');
-          const url  = $(this).data('url');
-          if (page && page !== currentPage) {
-              currentPage = page;
-              fetchData(url, currentPage);
-          }
-      });
-  
-      // Event handler untuk tombol loadDataButton
-      $('.loadDataButton').on('click', function() {
-          var url = $(this).data('url');
-          loadData(url);
-      });
+        $('.loadDataButton').on('click', function() {
+            const url = $(this).data('url');
+            loadData(url);
+        });
 
-      // Fungsi untuk menampilkan toast notifikasi
-      function showToast(message) {
-          $('.toast-body').text(message);
-          $('.toast').toast('show');
-      }
-  });
-  </script>
+        /**
+         * Menampilkan notifikasi toast
+         * @param {string} message - Pesan yang akan ditampilkan pada toast
+         */
+        function showToast(message) {
+            $('.toast-body').text(message);
+            $('.toast').toast('show');
+        }
+    });
+</script>
+
 
 
 @endsection
