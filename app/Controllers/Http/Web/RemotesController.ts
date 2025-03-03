@@ -122,7 +122,7 @@ export default class RemotesController {
 
   public async itemSwing({ response, params }: HttpContextContract) {
     try {
-      return await MqttPublish.publish(response, params.idItem, 'swing')
+      return await MqttPublish.send(response, params.idItem, 'swing')
     } catch (error) {
       return ApiResponse.internalServerError(response, error.message, error.stack)
     }
@@ -130,7 +130,7 @@ export default class RemotesController {
 
   public async itemUp({ response, params }: HttpContextContract) {
     try {
-      const responses = await MqttPublish.publish(response, params.idItem, 'up')
+      const responses = await MqttPublish.send(response, params.idItem, 'up')
       const data = await Item.findOrFail(params.idItem)
       if (data.temperature <= 29) {
         data.temperature += 1
@@ -144,7 +144,7 @@ export default class RemotesController {
 
   public async itemDown({ response, params }: HttpContextContract) {
     try {
-      const responses = await MqttPublish.publish(response, params.idItem, 'down')
+      const responses = await MqttPublish.send(response, params.idItem, 'down')
       const data = await Item.findOrFail(params.idItem)
       if (data.temperature >= 17) {
         data.temperature -= 1
@@ -188,7 +188,7 @@ export default class RemotesController {
 
   public async itemOn({ response, params }: HttpContextContract) {
     try {
-      const responses = await MqttPublish.publish(response, params.idItem, 'on')
+      const responses = await MqttPublish.send(response, params.idItem, 'on')
       const data = await Item.findOrFail(params.idItem)
       data.isActive = true
       data.temperature = 16
@@ -207,7 +207,7 @@ export default class RemotesController {
 
   public async itemOff({ response, params }: HttpContextContract) {
     try {
-      const responses = await MqttPublish.publish(response, params.idItem, 'off')
+      const responses = await MqttPublish.send(response, params.idItem, 'off')
       const data = await Item.findOrFail(params.idItem)
       data.isActive = false
       await data.save()

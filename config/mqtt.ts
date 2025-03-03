@@ -6,6 +6,10 @@ const mqttConfig: IClientOptions = {
   protocol: (process.env.MQTT_PROTOCOL as 'mqtt' | 'mqtts') || 'mqtt',
   username: process.env.MQTT_USERNAME || undefined,
   password: process.env.MQTT_PASSWORD || undefined,
-  clientId: process.env.MQTT_CLIENT_ID || undefined,
+  clientId:
+    process.env.MQTT_CLIENT_ID + `client_${Math.random().toString(16).substr(2, 8)}` || undefined,
+  clean: true,
+  keepalive: 60,
+  reconnectPeriod: 5000,
 }
 export default mqttConfig

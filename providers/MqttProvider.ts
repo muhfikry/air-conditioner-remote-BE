@@ -3,47 +3,43 @@ import mqtt from 'mqtt'
 import Env from '@ioc:Adonis/Core/Env'
 import { DatabaseContract } from '@ioc:Adonis/Lucid/Database'
 import Logger from '@ioc:Adonis/Core/Logger'
-import Redis from '@ioc:Adonis/Addons/Redis'
-/*
-|--------------------------------------------------------------------------
-| Provider
-|--------------------------------------------------------------------------
-|
-| Your application is not ready when this file is loaded by the framework.
-| Hence, the top level imports relying on the IoC container will not work.
-| You must import them inside the life-cycle methods defined inside
-| the provider class.
-|
-| @example:
-|
-| public async ready () {
-|   const Database = this.app.container.resolveBinding('Adonis/Lucid/Database')
-|   const Event = this.app.container.resolveBinding('Adonis/Core/Event')
-|   Event.on('db:query', Database.prettyPrint)
-| }
-|
-*/
+
 export default class MqttProvider {
   constructor(protected app: ApplicationContract) {}
 
   public register() {
+    if (this.app.container.hasBinding('Mqtt')) {
+      return
+    }
+
     this.app.container.singleton('Mqtt', () => {
       const client = mqtt.connect({
         host: Env.get('MQTT_HOST'),
         protocol: Env.get('MQTT_PROTOCOL'),
         username: Env.get('MQTT_USERNAME'),
         password: Env.get('MQTT_PASSWORD'),
-        port: Env.get('MQTT_port'),
-        clientId: Env.get('MQTT_CLIENT_ID'),
+        port: Env.get('MQTT_PORT'),
+        clientId: Env.get('MQTT_CLIENT_ID') + `client_${Math.random().toString(16).substr(2, 8)}`,
+        clean: true,
+        keepalive: 60,
+        reconnectPeriod: 5000,
       })
 
       client.on('connect', () => {
-        console.log('MQTT client connected')
+        console.log(`[${new Date().toISOString()}] MQTT client connected`)
       })
 
       client.on('error', (error) => {
-        console.error('MQTT client error:', error)
+        console.error(`[${new Date().toISOString()}] MQTT client error:`, error)
         Logger.error('MQTT client error: %j', error)
+      })
+
+      client.on('offline', () => {
+        console.warn(`[${new Date().toISOString()}] MQTT client offline, reconnecting...`)
+      })
+
+      client.on('disconnect', () => {
+        console.log(`[${new Date().toISOString()}] MQTT client disconnected`)
       })
 
       return client
@@ -56,24 +52,23 @@ export default class MqttProvider {
     const Database = this.app.container.use('Adonis/Lucid/Database') as DatabaseContract
 
     const items = await Database.from('items').select('code')
-    if (items) {
-      const status = items.map((item) => item.code + '/status')
-      status.forEach((topic) => {
-        MqttClient.subscribe(topic, (err) => {
+    if (items.length) {
+      const statusTopics = items.map((item) => `${item.code}/status`)
+      statusTopics.forEach((topic) => {
+        MqttClient.subscribe(topic, { qos: 1 }, (err) => {
           if (!err) {
             console.log(`Subscribed to topic ${topic}`)
           } else {
-            Logger.error('Failed to subscribe to topic %s: %j', topic, err) // Log error to file
+            Logger.error('Failed to subscribe to topic %s: %j', topic, err)
           }
         })
       })
     }
 
-    // Print received messages to the terminal and update the database
     MqttClient.on('message', async (topic, message) => {
       if (topic.endsWith('/status')) {
         const code = topic.split('/')[0]
-        const isActive = message.toString() === 'true'
+        const isActive = message.toString().toLowerCase() === 'true'
 
         try {
           const cachedStatus = await Redis.get(`status:${code}`)
@@ -82,8 +77,9 @@ export default class MqttProvider {
             console.log(`No change for ${code}, skipping update`)
             return
           }
+
           await Database.from('items').where('code', code).update({ is_active: isActive })
-          await Redis.set(`status:${code}`, JSON.stringify(isActive))
+          await Redis.set(`status:${code}`, JSON.stringify(isActive), 'EX', 60)
           console.log(`Updated ${code} to ${isActive}`)
         } catch (error) {
           Logger.error('Failed to update status for code %s: %j', code, error)
@@ -92,12 +88,14 @@ export default class MqttProvider {
     })
   }
 
-  public async ready() {
-    // App is ready
-  }
+  public async ready() {}
 
   public async shutdown() {
-    const MqttClient = this.app.container.use('Mqtt')
-    MqttClient.end() // Gracefully close the MQTT connection
+    if (this.app.container.hasBinding('Mqtt')) {
+      const MqttClient = this.app.container.use('Mqtt')
+      MqttClient.end(() => {
+        console.log('MQTT client disconnected gracefully')
+      })
+    }
   }
 }

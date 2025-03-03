@@ -1,14 +1,12 @@
-// app/Helpers/Response.ts
-
 import { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
-// import IrCode from 'App/Models/IrCode'
 import Item from 'App/Models/Item'
 import mqtt from 'mqtt'
 import mqttConfig from 'Config/mqtt'
 import ApiResponse from './ApiResponse'
+import Redis from '@ioc:Adonis/Addons/Redis'
 
 export default class MqttPublish {
-  private static client: mqtt.MqttClient | null = null // Updated type
+  private static client: mqtt.MqttClient | null = null
 
   /**
    * Mengambil instance client MQTT, membuat koneksi jika belum ada
@@ -25,35 +23,51 @@ export default class MqttPublish {
   }
 
   /**
+   * Mengirimkan pesan ke MQTT topic tertentu
+   * @param code - MQTT topic
+   * @param command - Payload yang akan dikirim
+   */
+  public static publish(
+    code: string,
+    command: any
+  ): Promise<{ success: boolean; message: string; error?: any }> {
+    return new Promise((resolve, reject) => {
+      const client = this.getClient()
+      if (!client) {
+        return reject({ success: false, message: 'MQTT connection failed' })
+      }
+
+      client.publish(code, command, { qos: 2 }, (err) => {
+        if (err) {
+          return reject({ success: false, message: 'MQTT publish failed', error: err })
+        }
+        if (command === 'on') {
+          Redis.set(`status:${code}`, JSON.stringify(true), 'EX', 60)
+        }
+        if (command === 'off') {
+          Redis.set(`status:${code}`, JSON.stringify(false), 'EX', 60)
+        }
+        resolve({ success: true, message: `Message published to topic: ${code}` })
+      })
+    })
+  }
+
+  /**
    * Publishes an MQTT message with a JSON payload
-   *
+   * @param response - HttpContext response object
    * @param item - The MQTT topic or item to publish to
    * @param command - The command or variable to find the appropriate IR code
    */
-  public static async publish(
-    response: HttpContextContract['response'],
-    item: string,
-    command: any
-  ) {
+  public static async send(response: HttpContextContract['response'], item: string, command: any) {
     try {
       const data = await Item.findOrFail(item)
+      const send = await this.publish(data.code, command)
 
-      const client = this.getClient()
-      if (!client) {
-        return ApiResponse.internalServerError(response, 'MQTT connection failed', null)
+      if (!send.success) {
+        return ApiResponse.internalServerError(response, send.message, send.error)
       }
 
-      client.publish(data.code, command, { qos: 0 }, (err) => {
-        if (err) {
-          return ApiResponse.internalServerError(response, 'Publish failed', err.message)
-        }
-      })
-
-      return ApiResponse.ok(
-        response,
-        command,
-        'Message topic ' + data.code + ' published successfully'
-      )
+      return ApiResponse.ok(response, command, `Message topic ${data.code} published successfully`)
     } catch (error) {
       return ApiResponse.internalServerError(response, error.message, error.stack)
     }

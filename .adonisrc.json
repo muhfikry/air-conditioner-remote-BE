@@ -28,7 +28,8 @@
     "@adonisjs/auth",
     "@adonisjs/mail",
     "./providers/MqttProvider",
-    "@adonisjs/redis"
+    "@adonisjs/redis",
+    "./providers/JobProvider"
   ],
   "metaFiles": [
     {
