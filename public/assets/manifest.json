@@ -6,6 +6,7 @@
   "assets/images/la-solid-900.svg": "http://localhost:8080/assets/images/la-solid-900.0f874d69.svg",
   "assets/images/keenicons-solid.svg?812fv7": "http://localhost:8080/assets/images/keenicons-solid.aba5c2d0.svg",
   "assets/images/keenicons-duotone.svg?eut7fk": "http://localhost:8080/assets/images/keenicons-duotone.e58011f1.svg",
+  "assets/images/logo-light.png": "http://localhost:8080/assets/images/logo-light.77c64a6b.png",
   "assets/fonts/fa-solid-900.ttf": "http://localhost:8080/assets/fonts/fa-solid-900.45a265d0.ttf",
   "assets/images/bg-hero.png": "http://localhost:8080/assets/images/bg-hero.cc9422b5.png",
   "assets/fonts/keenicons-outline.eot?fzo4bm": "http://localhost:8080/assets/fonts/keenicons-outline.14a219e1.eot",
@@ -28,6 +29,7 @@
   "assets/fonts/la-solid-900.woff": "http://localhost:8080/assets/fonts/la-solid-900.89363487.woff",
   "assets/fonts/fa-brands-400.woff2": "http://localhost:8080/assets/fonts/fa-brands-400.8d3cabfc.woff2",
   "assets/images/la-regular-400.svg": "http://localhost:8080/assets/images/la-regular-400.5b8ad6f4.svg",
+  "assets/images/logo-dark.png": "http://localhost:8080/assets/images/logo-dark.f9e879fd.png",
   "assets/fonts/la-brands-400.woff": "http://localhost:8080/assets/fonts/la-brands-400.925b340f.woff",
   "assets/fonts/la-solid-900.woff2": "http://localhost:8080/assets/fonts/la-solid-900.3efd5ba1.woff2",
   "assets/fonts/la-brands-400.woff2": "http://localhost:8080/assets/fonts/la-brands-400.3a8109c4.woff2",
@@ -39,5 +41,6 @@
   "assets/fonts/la-regular-400.woff2": "http://localhost:8080/assets/fonts/la-regular-400.8dc1cedf.woff2",
   "assets/fonts/fa-v4compatibility.ttf": "http://localhost:8080/assets/fonts/fa-v4compatibility.2eb7b3ef.ttf",
   "assets/images/abstract.svg": "http://localhost:8080/assets/images/abstract.5bbc4f12.svg",
-  "assets/fonts/fa-v4compatibility.woff2": "http://localhost:8080/assets/fonts/fa-v4compatibility.b3049b13.woff2"
+  "assets/fonts/fa-v4compatibility.woff2": "http://localhost:8080/assets/fonts/fa-v4compatibility.b3049b13.woff2",
+  "assets/images/icon-small.png": "http://localhost:8080/assets/images/icon-small.52081740.png"
 }
