@@ -4,6 +4,7 @@ import Database from '@ioc:Adonis/Lucid/Database'
 import Logger from '@ioc:Adonis/Core/Logger'
 import MqttPublish from 'App/Helpers/MqttPublish'
 import Redis from '@ioc:Adonis/Addons/Redis'
+import Log from 'App/Models/Log'
 
 export default class JobScheduler extends BaseTask {
   public static get schedule() {
@@ -56,6 +57,10 @@ export default class JobScheduler extends BaseTask {
       await Promise.all(
         scheduledItems.map(async (item) => {
           try {
+            const log = new Log()
+            log.itemId = item.id
+            log.isActive = false
+            await log.save()
             await MqttPublish.publish(item.code, 'off')
           } catch (error) {
             Logger.error(`Failed to send MQTT for ${item.code}: %j`, error)
