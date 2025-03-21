@@ -2,94 +2,14 @@ import type { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
 import { schema } from '@ioc:Adonis/Core/Validator'
 import ApiResponse from 'App/Helpers/ApiResponse'
 import MqttPublish from 'App/Helpers/MqttPublish'
+import { random } from 'App/Helpers/Random'
 import Building from 'App/Models/Building'
 import Item from 'App/Models/Item'
 import Log from 'App/Models/Log'
 import Room from 'App/Models/Room'
-import { random } from 'App/Helpers/Random'
-import StatSerialize from 'App/serializers/stat_serializer'
 
-export default class RemotesController {
-  public async index({ view, auth }: HttpContextContract) {
-    const user = await auth.use('web').authenticate()
-    const data =
-      user.role === 'superadmin'
-        ? await Building.query().orderBy('name')
-        : await Building.query()
-            .whereHas('permission', (permissionQuery) => {
-              permissionQuery.where('user_id', user.id)
-            })
-            .orderBy('name')
-    return await view.render('pages/remote/index', { data })
-  }
-
-  public async indexStat({ response, auth }: HttpContextContract) {
-    const user = await auth.use('web').authenticate()
-    const buildings =
-      user.role === 'superadmin'
-        ? await Building.query().preload('room', (roomQuery) => {
-            roomQuery.preload('item')
-          })
-        : await Building.query()
-            .preload('room', (roomQuery) => {
-              roomQuery.preload('item')
-            })
-            .whereHas('permission', (permissionQuery) => {
-              permissionQuery.where('user_id', user.id)
-            })
-    const data = buildings.map((building) => {
-      let totalItem = 0
-      let activeCount = 0
-      building.room.forEach((r) => {
-        totalItem += r.item.length
-        activeCount += r.item.filter((i) => i.isActive).length
-      })
-      const inactiveCount = totalItem - activeCount
-      return {
-        ...building.serialize(),
-        totalItem,
-        activeCount,
-        inactiveCount,
-      }
-    })
-
-    return ApiResponse.ok(
-      response,
-      await StatSerialize.collection(data),
-      'Building Stat retrieved successfully'
-    )
-  }
-
-  public async building({ view, params }: HttpContextContract) {
-    const data = await Room.query()
-      .preload('building')
-      .orderBy('name')
-      .where('building_id', params.idBuilding)
-    const building = await Building.findOrFail(params.idBuilding)
-    return await view.render('pages/remote/building', { data, building })
-  }
-
-  public async buildingStat({ params, response }: HttpContextContract) {
-    const rooms = await Room.query().where('building_id', params.idBuilding).preload('item')
-    const data = rooms.map((room) => {
-      const totalItem = room.item.length
-      const activeCount = room.item.filter((i) => i.isActive).length
-      const inactiveCount = totalItem - activeCount
-      return {
-        ...room.serialize(),
-        totalItem,
-        activeCount,
-        inactiveCount,
-      }
-    })
-    return ApiResponse.ok(
-      response,
-      await StatSerialize.collection(data),
-      'Room Stat retrieved successfully'
-    )
-  }
-
-  public async room({ view, params }: HttpContextContract) {
+export default class ItemsController {
+  public async index({ view, params }: HttpContextContract) {
     const data = await Item.query()
       .preload('room')
       .preload('device')
@@ -97,7 +17,7 @@ export default class RemotesController {
       .where('room_id', params.idRoom)
     const building = await Building.findOrFail(params.idBuilding)
     const room = await Room.findOrFail(params.idRoom)
-    return await view.render('pages/remote/room', { data, building, room })
+    return await view.render('pages/remote/item', { data, building, room })
   }
 
   public async item({ params, response }: HttpContextContract) {

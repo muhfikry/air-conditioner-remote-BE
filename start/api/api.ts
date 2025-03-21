@@ -10,8 +10,9 @@ export default () => {
   Route.get('/auth/logout', 'Api/AuthController.logout').middleware('auth')
 
   Route.group(() => {
-    Route.post('/change-password', 'Web/ProfilesController.changePassword')
-  })
-    .prefix('/profile')
-    .middleware('auth')
+    Route.get('/', 'APi/RemotesController.building')
+    Route.get('/:idBuilding', 'APi/RemotesController.room')
+    Route.get('/:idBuilding/:idRoom', 'APi/RemotesController.item')
+  }).prefix('/remote')
+  // .middleware('auth')
 }
