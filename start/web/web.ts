@@ -20,16 +20,16 @@ export default () => {
   Route.get('/dashboard', 'Web/DashboardController.index').as('dashboard').middleware('auth')
 
   Route.group(() => {
-    Route.get('/building', 'Web/MasterDataController.building').as('master-data.building')
-    Route.post('/building', 'Web/MasterDataController.buildingStore').as(
-      'master-data.building.store'
-    )
-    Route.post('/building/:id/update', 'Web/MasterDataController.buildingUpdate').as(
-      'master-data.building.update'
-    )
-    Route.get('/building/:id/delete', 'Web/MasterDataController.buildingDestroy').as(
-      'master-data.building.destroy'
-    )
+    // Route.get('/building', 'Web/MasterDataController.building').as('master-data.building')
+    // Route.post('/building', 'Web/MasterDataController.buildingStore').as(
+    //   'master-data.building.store'
+    // )
+    // Route.post('/building/:id/update', 'Web/MasterDataController.buildingUpdate').as(
+    //   'master-data.building.update'
+    // )
+    // Route.get('/building/:id/delete', 'Web/MasterDataController.buildingDestroy').as(
+    //   'master-data.building.destroy'
+    // )
     Route.get('/room', 'Web/MasterDataController.room').as('master-data.room')
     Route.post('/room', 'Web/MasterDataController.roomStore').as('master-data.room.store')
     Route.post('/room/:id/update', 'Web/MasterDataController.roomUpdate').as(
@@ -51,18 +51,32 @@ export default () => {
     .middleware(['auth', 'role:superadmin'])
 
   Route.group(() => {
-    Route.get('/', 'Web/BuildingsController.index').as('remote')
-    Route.get('/stat', 'Web/BuildingsController.statistic').as('remote.stat')
+    Route.get('/', 'Web/BuildingsController.index').as('remote.building')
+    Route.get('/stat', 'Web/BuildingsController.statistic').as('remote.building.stat')
+    Route.group(() => {
+      Route.post('/', 'Web/BuildingsController.store').as('remote.building.store')
+      Route.post('/:id/update', 'Web/BuildingsController.update').as('remote.building.update')
+      Route.get('/:id/delete', 'Web/BuildingsController.destroy').as('remote.building.destroy')
+    })
+      .prefix('/building')
+      .middleware('role:superadmin')
 
     Route.get('/:idBuilding', 'Web/RoomsController.index')
-      .as('remote.building')
+      .as('remote.room')
       .middleware('permissionCheck:web')
     Route.get('/:idBuilding/stat', 'Web/RoomsController.statistic')
-      .as('remote.building.stat')
+      .as('remote.room.stat')
       .middleware('permissionCheck:api')
+    Route.group(() => {
+      Route.post('', 'Web/RoomsController.store').as('remote.room.store')
+      Route.post('/:id/update', 'Web/RoomsController.update').as('remote.room.update')
+      Route.get('/:id/delete', 'Web/RoomsController.destroy').as('remote.room.destroy')
+    })
+      .prefix('/room')
+      .middleware('role:superadmin')
 
     Route.get('/:idBuilding/:idRoom', 'Web/ItemsController.index')
-      .as('remote.room')
+      .as('remote.item.index')
       .middleware('permissionCheck:web')
     Route.get('/:idBuilding/:idRoom/:idItem', 'Web/ItemsController.item')
       .as('remote.item')

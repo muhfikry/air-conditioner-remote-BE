@@ -1,4 +1,5 @@
 import type { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
+import { schema } from '@ioc:Adonis/Core/Validator'
 import ApiResponse from 'App/Helpers/ApiResponse'
 import Building from 'App/Models/Building'
 import StatSerialize from 'App/serializers/stat_serializer'
@@ -52,5 +53,50 @@ export default class BuildingsController {
       await StatSerialize.collection(data),
       'Building Stat retrieved successfully'
     )
+  }
+
+  public async store({ request, session, response }: HttpContextContract) {
+    const payload = await request.validate({
+      schema: schema.create({
+        name: schema.string(),
+        description: schema.string.nullable(),
+      }),
+      messages: {
+        'name.required': 'The name field is required.',
+      },
+    })
+    const building = new Building()
+    building.name = payload.name
+    building.description = payload.description
+    await building.save()
+
+    session.flash('success', 'Building has been created successfully')
+    return response.redirect().back()
+  }
+
+  public async update({ request, session, response, params }: HttpContextContract) {
+    const payload = await request.validate({
+      schema: schema.create({
+        name: schema.string(),
+        description: schema.string.nullable(),
+      }),
+      messages: {
+        'name.required': 'The name field is required.',
+      },
+    })
+    const building = await Building.findOrFail(params.id)
+    building.name = payload.name
+    building.description = payload.description
+    await building.save()
+
+    session.flash('success', 'Building has been updated successfully')
+    return response.redirect().back()
+  }
+
+  public async destroy({ params, response, session }: HttpContextContract) {
+    const data = await Building.findOrFail(params.id)
+    await data.delete()
+    session.flash('success', 'Building has been deleted successfully')
+    return response.redirect().back()
   }
 }

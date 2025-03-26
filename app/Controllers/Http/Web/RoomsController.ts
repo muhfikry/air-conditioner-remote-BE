@@ -1,4 +1,5 @@
 import type { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
+import { schema } from '@ioc:Adonis/Core/Validator'
 import ApiResponse from 'App/Helpers/ApiResponse'
 import Building from 'App/Models/Building'
 import Room from 'App/Models/Room'
@@ -32,5 +33,52 @@ export default class RoomsController {
       await StatSerialize.collection(data),
       'Room Stat retrieved successfully'
     )
+  }
+
+  public async store({ request, session, response }: HttpContextContract) {
+    const payload = await request.validate({
+      schema: schema.create({
+        name: schema.string(),
+        buildingId: schema.string(),
+        description: schema.string.nullable(),
+      }),
+      messages: {
+        'name.required': 'The name field is required.',
+      },
+    })
+    const room = new Room()
+    room.buildingId = payload.buildingId
+    room.name = payload.name
+    room.description = payload.description
+    await room.save()
+
+    session.flash('success', 'Room has been created successfully')
+    return response.redirect().back()
+  }
+
+  public async update({ request, session, response, params }: HttpContextContract) {
+    const payload = await request.validate({
+      schema: schema.create({
+        name: schema.string(),
+        description: schema.string.nullable(),
+      }),
+      messages: {
+        'name.required': 'The name field is required.',
+      },
+    })
+    const room = await Room.findOrFail(params.id)
+    room.name = payload.name
+    room.description = payload.description
+    await room.save()
+
+    session.flash('success', 'Room has been updated successfully')
+    return response.redirect().back()
+  }
+
+  public async destroy({ params, response, session }: HttpContextContract) {
+    const data = await Room.findOrFail(params.id)
+    await data.delete()
+    session.flash('success', 'Room has been deleted successfully')
+    return response.redirect().back()
   }
 }

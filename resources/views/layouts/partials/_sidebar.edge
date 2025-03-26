@@ -22,45 +22,8 @@
             <span class="menu-arrow"></span>  
           </a>
         </div>
-        @if (auth.user.role == 'superadmin' )
-          <div data-kt-menu-trigger="click" class="menu-item menu-accordion {{ title == 'Master Data' ? 'here show' : ''}}">
-            <span class="menu-link">
-              <span class="menu-icon">
-                <i class="ki-outline ki-external-drive fs-2"></i>
-              </span>
-              <span class="menu-title">Master Data</span>
-              <i class="ki-outline ki-down fs-4"></i>
-            </span>
-            <div class="menu-sub menu-sub-accordion">
-              <div class="menu-item">
-                <a class="menu-link {{ subTitle == 'Building' ? 'active' : ''}}" href="{{ route('master-data.building') }}">
-                  <span class="menu-bullet">
-                    <span class="bullet bullet-dot"></span>
-                  </span>
-                  <span class="menu-title">Building</span>
-                </a>
-              </div>
-              <div class="menu-item">
-                <a class="menu-link {{ subTitle == 'Room' ? 'active' : ''}}" href="{{ route('master-data.room') }}">
-                  <span class="menu-bullet">
-                    <span class="bullet bullet-dot"></span>
-                  </span>
-                  <span class="menu-title">Room</span>
-                </a>
-              </div>
-              <div class="menu-item">
-                <a class="menu-link {{ subTitle == 'Item' ? 'active' : ''}}" href="{{ route('master-data.item') }}">
-                  <span class="menu-bullet">
-                    <span class="bullet bullet-dot"></span>
-                  </span>
-                  <span class="menu-title">Item</span>
-                </a>
-              </div>
-            </div>
-          </div>
-        @endif
         <div class="menu-item   {{ title == 'Remote' ? 'here show' : ''}}">
-          <a href="{{ route('remote') }}" class="menu-link">
+          <a href="{{ route('remote.building') }}" class="menu-link">
             <span class="menu-icon">
               <i class="ki-outline ki-finance-calculator fs-2"></i>
             </span>
