@@ -30,20 +30,33 @@
               </button>
               <div class="modal fade" tabindex="-1" id="add">
                 <div class="modal-dialog modal-dialog-centered">
-                    <form method="POST" action="{{ route('remote.building.store') }}" class="modal-content" id="add">
+                    <form method="POST" action="{{ route('remote.item.store') }}" class="modal-content" id="add">
+                      <input type="hidden" name="roomId" value="{{ room.id }}">
                         <div class="modal-header">
-                            <h3 class="modal-title">Add New Building</h3>
+                            <h3 class="modal-title">Add New Item</h3>
                             <div class="btn btn-icon btn-sm btn-active-light-dark ms-2" data-bs-dismiss="modal" aria-label="Close">
                                 <i class="ki-duotone ki-cross fs-1"><span class="path1"></span><span class="path2"></span></i>
                             </div>
                         </div>
                         <div class="modal-body">
                           <div class="mb-3">
-                            <label for="exampleFormControlInput1" class="required form-label">Name</label>
-                            <input type="text" name="name" class="form-control form-control-solid {{ flashMessages.get('errors.name')? 'is-invalid' : '' }}"  value="{{ flashMessages.get('name', '') ?? '' }}" placeholder="Building Name" required/>
+                            <label for="exampleFormControlInput1" class="required form-label">Asset Code</label>
+                            <input type="text" name="code" class="form-control form-control-solid {{ flashMessages.get('errors.code')? 'is-invalid' : '' }}"  value="{{ flashMessages.get('code', '') ?? '' }}" placeholder="Asset Code" required/>
                               <div class="invalid-feedback">
-                                {{ flashMessages.get('errors.name') ?? '' }}
+                                {{ flashMessages.get('errors.code') ?? '' }}
                               </div>
+                          </div>
+                          <div class="mb-3">
+                            <label for="exampleFormControlInput1" class="required form-label">Merk</label>
+                            <select class="form-select form-select-solid" data-control="select2" name="device" data-placeholder="Select a merk" required>
+                              <option></option>
+                              @each(device in device)
+                              <option value="{{ device.id }}">{{ device.merk }}</option>
+                              @end
+                            </select>
+                            <div class="invalid-feedback">
+                              {{ flashMessages.get('errors.device') ?? '' }}
+                            </div>
                           </div>
                           <div class="mb-3">
                             <label for="exampleFormControlInput1" class="form-label">Description</label>
@@ -332,7 +345,22 @@
   </div>
 </div>
 
-
+<script>
+  document.getElementById('add').addEventListener('submit', function() {
+    var submitButton = document.getElementById('add_submit');
+    submitButton.querySelector('.indicator-label').style.display = 'none';
+    submitButton.querySelector('.indicator-progress').style.display = 'inline-block';
+    submitButton.setAttribute('disabled', 'disabled');
+  });
+  @each((item) in data)
+  document.getElementById('update{{ item.id }}').addEventListener('submit', function() {
+    var submitButton = document.getElementById('update_submit_{{ item.id }}');
+    submitButton.querySelector('.indicator-label').style.display = 'none';
+    submitButton.querySelector('.indicator-progress').style.display = 'inline-block';
+    submitButton.setAttribute('disabled', 'disabled');
+  });
+  @endeach
+</script>
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/list.js/2.3.1/list.min.js"></script>
 <script>

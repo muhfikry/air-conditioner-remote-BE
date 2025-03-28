@@ -4,6 +4,7 @@ import ApiResponse from 'App/Helpers/ApiResponse'
 import MqttPublish from 'App/Helpers/MqttPublish'
 import { random } from 'App/Helpers/Random'
 import Building from 'App/Models/Building'
+import Device from 'App/Models/Device'
 import Item from 'App/Models/Item'
 import Log from 'App/Models/Log'
 import Room from 'App/Models/Room'
@@ -17,7 +18,8 @@ export default class ItemsController {
       .where('room_id', params.idRoom)
     const building = await Building.findOrFail(params.idBuilding)
     const room = await Room.findOrFail(params.idRoom)
-    return await view.render('pages/remote/item', { data, building, room })
+    const device = await Device.all()
+    return await view.render('pages/remote/item', { data, building, room, device })
   }
 
   public async item({ params, response }: HttpContextContract) {
@@ -171,5 +173,58 @@ export default class ItemsController {
     } catch (error) {
       return ApiResponse.internalServerError(response, error.message, error.stack)
     }
+  }
+
+  public async store({ request, session, response }: HttpContextContract) {
+    const payload = await request.validate({
+      schema: schema.create({
+        device: schema.string(),
+        roomId: schema.string(),
+        code: schema.string(),
+        description: schema.string.nullable(),
+      }),
+      messages: {
+        'code.required': 'The code field is required.',
+        'device.required': 'The Merk field is required.',
+      },
+    })
+    const item = new Item()
+    item.deviceId = payload.device
+    item.roomId = payload.roomId
+    item.code = payload.code
+    item.description = payload.description
+    await item.save()
+
+    session.flash('success', 'Item has been created successfully')
+    return response.redirect().back()
+  }
+
+  public async update({ request, session, response, params }: HttpContextContract) {
+    const payload = await request.validate({
+      schema: schema.create({
+        device: schema.string(),
+        code: schema.string(),
+        description: schema.string.nullable(),
+      }),
+      messages: {
+        'code.required': 'The code field is required.',
+        'device.required': 'The device field is required.',
+      },
+    })
+    const item = await Item.findOrFail(params.id)
+    item.deviceId = payload.device
+    item.code = payload.code
+    item.description = payload.description
+    await item.save()
+
+    session.flash('success', 'Item has been updated successfully')
+    return response.redirect().back()
+  }
+
+  public async destroy({ params, response, session }: HttpContextContract) {
+    const data = await Item.findOrFail(params.id)
+    await data.delete()
+    session.flash('success', 'Item has been deleted successfully')
+    return response.redirect().back()
   }
 }

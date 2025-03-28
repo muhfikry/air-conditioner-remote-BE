@@ -75,9 +75,15 @@ export default () => {
       .prefix('/room')
       .middleware('role:superadmin')
 
-    Route.get('/:idBuilding/:idRoom', 'Web/ItemsController.index')
-      .as('remote.item.index')
-      .middleware('permissionCheck:web')
+    Route.get('/:idBuilding/:idRoom', 'Web/ItemsController.index').as('remote.item.index')
+    Route.group(() => {
+      Route.post('/', 'Web/itemsController.store').as('remote.item.store')
+      Route.post('/:id/update', 'Web/itemsController.update').as('remote.item.update')
+      Route.get('/:id/delete', 'Web/itemsController.destroy').as('remote.item.destroy')
+    })
+      .prefix('/item')
+      .middleware('role:superadmin')
+
     Route.get('/:idBuilding/:idRoom/:idItem', 'Web/ItemsController.item')
       .as('remote.item')
       .middleware('permissionCheck:api')
