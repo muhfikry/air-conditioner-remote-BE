@@ -6,33 +6,164 @@
 @section('content')
 <div id="rooms-list">
 
-  <div class="row px-lg-20 m-1 mb-4">
-    <input class="search form-control" placeholder="Search items..." />
-  </div>
+  <div class="row px-lg-20">
+    <div class="col-12 mb-6">       
+      <div class="card card-flush h-xl-100">
 
-  <div class="list row px-lg-20">
-    @each((item) in data)
-    <div class="col-lg-6 mb-6">
-      <div class="loadDataButton card card-flush bgi-no-repeat bgi-size-contain bgi-position-x-end h-xl-100" data-url="{{ item.id }}">
-        <div class="card-body rounded-2 bg-secondary text-gray-900 border border-gray-900 p-5 d-flex justify-content-between align-items-end" style="solid rgba(255, 255, 255, 0.3);background: rgba(0, 0, 0, 0.15);">
-          <div class="d-flex align-items-center">
-            <div class="symbol symbol-50px w-50px bg-white p-3 d-flex justify-content-center me-5 text-gray-500">
-              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" class="bi bi-fan" viewBox="0 0 16 16">
-                <path d="M10 3c0 1.313-.304 2.508-.8 3.4a2 2 0 0 0-1.484-.38c-.28-.982-.91-2.04-1.838-2.969a8 8 0 0 0-.491-.454A6 6 0 0 1 8 2c.691 0 1.355.117 1.973.332Q10 2.661 10 3m0 5q0 .11-.012.217c1.018-.019 2.2-.353 3.331-1.006a8 8 0 0 0 .57-.361 6 6 0 0 0-2.53-3.823 9 9 0 0 1-.145.64c-.34 1.269-.944 2.346-1.656 3.079.277.343.442.78.442 1.254m-.137.728a2 2 0 0 1-1.07 1.109c.525.87 1.405 1.725 2.535 2.377q.3.174.605.317a6 6 0 0 0 2.053-4.111q-.311.11-.641.199c-1.264.339-2.493.356-3.482.11ZM8 10c-.45 0-.866-.149-1.2-.4-.494.89-.796 2.082-.796 3.391q0 .346.027.678A6 6 0 0 0 8 14c.94 0 1.83-.216 2.623-.602a8 8 0 0 1-.497-.458c-.925-.926-1.555-1.981-1.836-2.96Q8.149 10 8 10M6 8q0-.12.014-.239c-1.02.017-2.205.351-3.34 1.007a8 8 0 0 0-.568.359 6 6 0 0 0 2.525 3.839 8 8 0 0 1 .148-.653c.34-1.267.94-2.342 1.65-3.075A2 2 0 0 1 6 8m-3.347-.632c1.267-.34 2.498-.355 3.488-.107.196-.494.583-.89 1.07-1.1-.524-.874-1.406-1.733-2.541-2.388a8 8 0 0 0-.594-.312 6 6 0 0 0-2.06 4.106q.309-.11.637-.199M8 9a1 1 0 1 0 0-2 1 1 0 0 0 0 2"/>
-                <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14m0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16"/>
-              </svg>
+        <div class="px-9 pt-10 pb-2">
+          <div class="d-flex flex-column flex-md-row gap-2 align-items-start align-items-md-center justify-content-between">
+            <div class="d-flex gap-2 align-items-center w-100">
+              <a href="{{ route('remote.building') }}" class="btn btn-secondary btn-icon">
+                <i class="ki-duotone ki-black-left fs-1"></i>
+              </a>
+              <div class="position-relative w-100 mt-1 mt-md-0">
+                <i class="ki-outline ki-magnifier fs-2 position-absolute top-50 translate-middle-y ms-4"></i>
+                <input type="text" class="search form-control form-control-solid ps-12" placeholder="Search">
+              </div>
             </div>
-            <div class="fw-bold">
-              <span class="fs-2 d-block code">{{ item.code }}</span>
-              <span class="opacity-50 merk">{{ item.device.merk }}</span>
+          
+            <div class="d-flex gap-2 w-100 w-md-auto mt-2 mt-md-0">
+              @if (auth.user.role == 'superadmin' )
+              <button data-bs-toggle="modal" data-bs-target="#add" class="btn btn-dark w-100 w-md-auto d-flex align-items-center justify-content-center">
+                <i class="ki-duotone ki-plus fs-2 me-2"></i>
+                <span>Add</span>
+              </button>
+              <div class="modal fade" tabindex="-1" id="add">
+                <div class="modal-dialog modal-dialog-centered">
+                    <form method="POST" action="{{ route('remote.building.store') }}" class="modal-content" id="add">
+                        <div class="modal-header">
+                            <h3 class="modal-title">Add New Building</h3>
+                            <div class="btn btn-icon btn-sm btn-active-light-dark ms-2" data-bs-dismiss="modal" aria-label="Close">
+                                <i class="ki-duotone ki-cross fs-1"><span class="path1"></span><span class="path2"></span></i>
+                            </div>
+                        </div>
+                        <div class="modal-body">
+                          <div class="mb-3">
+                            <label for="exampleFormControlInput1" class="required form-label">Name</label>
+                            <input type="text" name="name" class="form-control form-control-solid {{ flashMessages.get('errors.name')? 'is-invalid' : '' }}"  value="{{ flashMessages.get('name', '') ?? '' }}" placeholder="Building Name" required/>
+                              <div class="invalid-feedback">
+                                {{ flashMessages.get('errors.name') ?? '' }}
+                              </div>
+                          </div>
+                          <div class="mb-3">
+                            <label for="exampleFormControlInput1" class="form-label">Description</label>
+                            <textarea name="description" class="form-control form-control-solid {{ flashMessages.get('errors.description')? 'is-invalid' : '' }}" rows="4" placeholder="type a description...">{{ flashMessages.get('description', '') ?? '' }}</textarea>
+                            <div class="invalid-feedback">
+                              {{ flashMessages.get('errors.description') ?? '' }}
+                            </div>
+                          </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-light" data-bs-dismiss="modal">Close</button>
+                            <button id="add_submit" class="btn btn-dark me-2 flex-shrink-0">
+                              <span class="indicator-label" data-kt-translate="sign-in-submit">Save</span>
+                              <span class="indicator-progress">
+                                <span data-kt-translate="general-progress">Please wait...</span>
+                                <span class="spinner-border spinner-border-sm align-middle ms-2"></span>
+                              </span>
+                            </button>
+                        </div>
+                    </form>
+                </div>
+              </div>
+              @endif
+              <button class="btn btn-danger w-100 w-md-auto d-flex align-items-center justify-content-center">
+                <i class="ki-duotone ki-abstract-5 fs-2 me-2">
+                  <span class="path1"></span>
+                  <span class="path2"></span>
+                </i>
+                <span style="white-space: nowrap;">Turn Off</span>
+              </button>
             </div>
-          </div>
-          <div id="{{ item.id }}">
           </div>
         </div>
+
+          <div class="card-body d-flex align-items-end">  
+            <div class="list w-100">  
+              @each((item) in data)
+                <div>
+                  <div class="loadDataButton cursor-pointer d-flex align-items-md-center py-2" data-url="{{ item.id }}">                    
+                    <div class="symbol symbol-40px me-5">
+                        <span class="symbol-label">  
+                          <i class="ki-duotone ki-bank fs-1">
+                            <span class="path1"></span>
+                            <span class="path2"></span>
+                          </i>                          
+                        </span>                
+                    </div>
+                    <div class="d-md-flex align-items-center flex-stack flex-wrap d-grid gap-1 flex-row-fluid">
+                      <div class="me-5">
+                        <span class="text-gray-800 fw-bold text-hover-dark fs-5 name">{{ item.code }}</span>
+                        <a href="{{ route('remote.item.index', { idBuilding:building.id, idRoom:item.id }) }}" class="text-gray-500 fw-semibold fs-6 d-block text-start ps-0 description">{{ item.description ?? '-' }}</a>   
+                      </div>
+                      <div class="d-flex align-items-center mt-5 mt-md-0"> 
+                        <div id="{{ item.id }}"></div>
+                      </div>
+                    </div>
+                    @if (auth.user.role == 'superadmin' )
+                      <div class="text-end">
+                        <a href="#" class="btn btn-icon btn-color-gray-500 btn-active-color-dark justify-content-end" data-kt-menu-trigger="click" data-kt-menu-placement="bottom-end">
+                          <i class="ki-outline ki-dots-square fs-1"></i>
+                        </a>
+                        <div class="menu menu-sub menu-sub-dropdown menu-column menu-rounded menu-gray-600 menu-state-bg fw-semibold fs-7 w-125px py-4" data-kt-menu="true">
+                          <div class="menu-item px-3">
+                            <a href="#" data-bs-toggle="modal" data-bs-target="#edit{{ item.id }}" class="menu-link px-3">Edit</a>
+                          </div>
+                          <div class="menu-item px-3">
+                            <a id="{{ route('remote.room.destroy',  { id: item.id }) }}" class="menu-link px-3 btn-del">Hapus</a>
+                          </div>
+                        </div>
+                      </div>
+                      
+                      <div class="modal fade" tabindex="-1" id="edit{{ item.id }}">
+                        <div class="modal-dialog modal-dialog-centered">
+                            <form method="POST" action="{{ route('remote.room.update', { id: item.id }) }}" class="modal-content" id="update{{ item.id }}">
+                                <div class="modal-header">
+                                    <h3 class="modal-title">Edit Room</h3>
+                                    <div class="btn btn-icon btn-sm btn-active-light-dark ms-2" data-bs-dismiss="modal" aria-label="Close">
+                                        <i class="ki-duotone ki-cross fs-1"><span class="path1"></span><span class="path2"></span></i>
+                                    </div>
+                                </div>
+                                <div class="modal-body">
+                                  <div class="mb-3">
+                                    <label for="exampleFormControlInput1" class="required form-label">Name</label>
+                                    <input type="text" name="name" class="form-control form-control-solid {{ flashMessages.get('errors.name') ? 'is-invalid' : '' }}"  value="{{ item.name }}" placeholder="Room Name" required/>
+                                      <div class="invalid-feedback">
+                                        {{ flashMessages.get('errors.name') ?? '' }}
+                                      </div>
+                                  </div>
+                                  <div class="mb-3">
+                                    <label for="exampleFormControlInput1" class="form-label">Description</label>
+                                    <textarea name="description" class="form-control form-control-solid {{ flashMessages.get('errors.description') ? 'is-invalid' : '' }}" rows="4" placeholder="Type a description...">{{ item.description ?? '' }}</textarea>
+                                    <div class="invalid-feedback">
+                                      {{ flashMessages.get('errors.description') ?? '' }}
+                                    </div>
+                                  </div>
+                                </div>
+                                <div class="modal-footer">
+                                    <div class="d-flex flex-stack">
+                                      <button type="button" class="btn btn-light" data-bs-dismiss="modal">Close</button>
+                                      <button id="update_submit_{{ item.id }}" class="btn btn-dark me-2 flex-shrink-0">
+                                        <span class="indicator-label">Save</span>
+                                        <span class="indicator-progress">
+                                          Please wait...
+                                          <span class="spinner-border spinner-border-sm align-middle ms-2"></span>
+                                        </span>
+                                      </button>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                      </div>
+                    @endif  
+                  </div>      
+                  <div class="separator separator-dashed my-3"></div> 
+                </div>
+                @endeach  
+            </div>
+          </div>
       </div>
     </div>
-    @endeach
   </div>
 </div>
 
