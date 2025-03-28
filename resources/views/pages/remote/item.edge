@@ -95,8 +95,8 @@
             <div class="list w-100">  
               @each((item) in data)
                 <div>
-                  <div class="loadDataButton cursor-pointer d-flex align-items-md-center py-2" data-url="{{ item.id }}">                    
-                    <div class="symbol symbol-40px me-5">
+                  <div class="d-flex align-items-md-center py-2">                    
+                    <div class="loadDataButton cursor-pointer symbol symbol-40px me-5" data-url="{{ item.id }}">
                         <span class="symbol-label">  
                           <i class="ki-duotone ki-bank fs-1">
                             <span class="path1"></span>
@@ -104,8 +104,8 @@
                           </i>                          
                         </span>                
                     </div>
-                    <div class="d-md-flex align-items-center flex-stack flex-wrap d-grid gap-1 flex-row-fluid">
-                      <div class="me-5">
+                    <div class="loadDataButton d-md-flex align-items-center flex-stack flex-wrap d-grid gap-1 flex-row-fluid" data-url="{{ item.id }}">
+                      <div class="me-5 cursor-pointer">
                         <span class="text-gray-800 fw-bold text-hover-dark fs-5 name">{{ item.code }}</span>
                         <a href="{{ route('remote.item.index', { idBuilding:building.id, idRoom:item.id }) }}" class="text-gray-500 fw-semibold fs-6 d-block text-start ps-0 description">{{ item.description ?? '-' }}</a>   
                       </div>
@@ -123,7 +123,7 @@
                             <a href="#" data-bs-toggle="modal" data-bs-target="#edit{{ item.id }}" class="menu-link px-3">Edit</a>
                           </div>
                           <div class="menu-item px-3">
-                            <a id="{{ route('remote.room.destroy',  { id: item.id }) }}" class="menu-link px-3 btn-del">Hapus</a>
+                            <a id="{{ route('remote.item.destroy',  { id: item.id }) }}" class="menu-link px-3 btn-del">Hapus</a>
                           </div>
                         </div>
                       </div>
