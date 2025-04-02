@@ -20,37 +20,6 @@ export default () => {
   Route.get('/dashboard', 'Web/DashboardController.index').as('dashboard').middleware('auth')
 
   Route.group(() => {
-    // Route.get('/building', 'Web/MasterDataController.building').as('master-data.building')
-    // Route.post('/building', 'Web/MasterDataController.buildingStore').as(
-    //   'master-data.building.store'
-    // )
-    // Route.post('/building/:id/update', 'Web/MasterDataController.buildingUpdate').as(
-    //   'master-data.building.update'
-    // )
-    // Route.get('/building/:id/delete', 'Web/MasterDataController.buildingDestroy').as(
-    //   'master-data.building.destroy'
-    // )
-    // Route.get('/room', 'Web/MasterDataController.room').as('master-data.room')
-    // Route.post('/room', 'Web/MasterDataController.roomStore').as('master-data.room.store')
-    // Route.post('/room/:id/update', 'Web/MasterDataController.roomUpdate').as(
-    //   'master-data.room.update'
-    // )
-    // Route.get('/room/:id/delete', 'Web/MasterDataController.roomDestroy').as(
-    //   'master-data.room.destroy'
-    // )
-    Route.get('/item', 'Web/MasterDataController.item').as('master-data.item')
-    Route.post('/item', 'Web/MasterDataController.itemStore').as('master-data.item.store')
-    Route.post('/item/:id/update', 'Web/MasterDataController.itemUpdate').as(
-      'master-data.item.update'
-    )
-    Route.get('/item/:id/delete', 'Web/MasterDataController.itemDestroy').as(
-      'master-data.item.destroy'
-    )
-  })
-    .prefix('/master-data')
-    .middleware(['auth', 'role:superadmin'])
-
-  Route.group(() => {
     Route.get('/', 'Web/BuildingsController.index').as('remote.building')
     Route.get('/stat', 'Web/BuildingsController.statistic').as('remote.building.stat')
     Route.group(() => {

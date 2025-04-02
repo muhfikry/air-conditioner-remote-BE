@@ -1,5 +1,5 @@
 import type { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
-import { schema } from '@ioc:Adonis/Core/Validator'
+import { rules, schema } from '@ioc:Adonis/Core/Validator'
 import ApiResponse from 'App/Helpers/ApiResponse'
 import MqttPublish from 'App/Helpers/MqttPublish'
 import { random } from 'App/Helpers/Random'
@@ -180,10 +180,11 @@ export default class ItemsController {
       schema: schema.create({
         device: schema.string(),
         roomId: schema.string(),
-        code: schema.string(),
+        code: schema.string([rules.unique({ table: 'items', column: 'code' })]),
         description: schema.string.nullable(),
       }),
       messages: {
+        'code.unique': 'The code has already been taken.',
         'code.required': 'The code field is required.',
         'device.required': 'The Merk field is required.',
       },
@@ -203,7 +204,15 @@ export default class ItemsController {
     const payload = await request.validate({
       schema: schema.create({
         device: schema.string(),
-        code: schema.string(),
+        code: schema.string([
+          rules.unique({
+            table: 'items',
+            column: 'code',
+            whereNot: {
+              id: params.id,
+            },
+          }),
+        ]),
         description: schema.string.nullable(),
       }),
       messages: {
