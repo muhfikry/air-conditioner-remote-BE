@@ -139,11 +139,23 @@
                                 </div>
                                 <div class="modal-body">
                                   <div class="mb-3">
-                                    <label for="exampleFormControlInput1" class="required form-label">Name</label>
-                                    <input type="text" name="name" class="form-control form-control-solid {{ flashMessages.get('errors.name') ? 'is-invalid' : '' }}"  value="{{ item.name }}" placeholder="Room Name" required/>
+                                    <label for="exampleFormControlInput1" class="required form-label">Asset Code</label>
+                                    <input type="text" name="code" class="form-control form-control-solid {{ flashMessages.get('errors.code') ? 'is-invalid' : '' }}"  value="{{ item.code }}" placeholder="Asset code" required/>
                                       <div class="invalid-feedback">
-                                        {{ flashMessages.get('errors.name') ?? '' }}
+                                        {{ flashMessages.get('errors.code') ?? '' }}
                                       </div>
+                                  </div>
+                                  <div class="mb-3">
+                                    <label for="exampleFormControlInput1" class="required form-label">Device</label>
+                                    <select class="form-select form-select-solid" data-control="select2" name="device" data-placeholder="Select a device" required>
+                                      <option></option>
+                                      @each((device) in device)
+                                      <option value="{{ device.id }}" {{ item.device.id === device.id ? 'selected' : '' }}>{{ device.merk }}</option>
+                                      @endeach
+                                    </select>
+                                    <div class="invalid-feedback">
+                                      {{ flashMessages.get('errors.building') ?? '' }}
+                                    </div>
                                   </div>
                                   <div class="mb-3">
                                     <label for="exampleFormControlInput1" class="form-label">Description</label>
