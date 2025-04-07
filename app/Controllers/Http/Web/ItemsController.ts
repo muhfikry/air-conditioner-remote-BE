@@ -8,6 +8,7 @@ import Device from 'App/Models/Device'
 import Item from 'App/Models/Item'
 import Log from 'App/Models/Log'
 import Room from 'App/Models/Room'
+import StatusSerialize from 'App/serializers/status_serializer'
 
 export default class ItemsController {
   public async index({ view, params }: HttpContextContract) {
@@ -20,6 +21,15 @@ export default class ItemsController {
     const room = await Room.findOrFail(params.idRoom)
     const device = await Device.all()
     return await view.render('pages/remote/item', { data, building, room, device })
+  }
+
+  public async status({ params, response }: HttpContextContract) {
+    const data = await Item.query().orderBy('code').where('room_id', params.idRoom)
+    return ApiResponse.ok(
+      response,
+      await StatusSerialize.collection(data),
+      'Item status retrieved successfully'
+    )
   }
 
   public async item({ params, response }: HttpContextContract) {

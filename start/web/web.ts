@@ -45,6 +45,7 @@ export default () => {
       .middleware('role:superadmin')
 
     Route.get('/:idBuilding/:idRoom', 'Web/ItemsController.index').as('remote.item.index')
+    Route.get('/:idBuilding/:idRoom/status', 'Web/ItemsController.status').as('remote.item.status')
     Route.group(() => {
       Route.post('/', 'Web/itemsController.store').as('remote.item.store')
       Route.post('/:id/update', 'Web/itemsController.update').as('remote.item.update')
