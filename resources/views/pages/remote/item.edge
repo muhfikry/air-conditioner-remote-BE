@@ -464,43 +464,6 @@ $(document).ready(function() {
   });
 </script>
 
-
-{{-- <script>
-    @each((item) in data)
-        $(function() {
-            function updateData() {
-                const url = "/remote/{{building.id}}/{{room.id}}/{{item.id}}";
-                $.ajax({
-                    url: url,
-                    method: 'GET',
-                    success: function(response) {
-                        const statusBadge = response.data.is_active
-                            ? `
-                                <span class="badge badge-light-success">
-                                    <span class="badge badge-success badge-circle w-10px h-10px me-2"></span>
-                                    Active
-                                </span>
-                              `
-                            : `
-                                <span class="badge badge-light-danger">
-                                    <span class="badge badge-danger badge-circle w-10px h-10px me-2"></span>
-                                    Inactive
-                                </span>
-                              `;
-                        $('#{{item.id}}').html(statusBadge);
-                    },
-                    error: function(xhr) {
-                        console.error('Error fetching data:', xhr);
-                    }
-                });
-            }
-
-            setInterval(updateData, 1000);
-            updateData();
-        });
-    @endeach
-</script> --}}
-
 <script>
 $(function() {
     let fetchIntervalId = null;
