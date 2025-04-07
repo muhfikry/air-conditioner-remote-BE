@@ -20,6 +20,7 @@ export default () => {
   Route.get('/dashboard', 'Web/DashboardController.index').as('dashboard').middleware('auth')
 
   Route.group(() => {
+    //building
     Route.get('/', 'Web/BuildingsController.index').as('remote.building')
     Route.get('/stat', 'Web/BuildingsController.statistic').as('remote.building.stat')
     Route.group(() => {
@@ -30,6 +31,7 @@ export default () => {
       .prefix('/building')
       .middleware('role:superadmin')
 
+    //room
     Route.get('/:idBuilding', 'Web/RoomsController.index')
       .as('remote.room')
       .middleware('permissionCheck:web')
@@ -43,7 +45,9 @@ export default () => {
     })
       .prefix('/room')
       .middleware('role:superadmin')
+    Route.get('/:idBuilding/turnoff', 'Web/RoomsController.turnoff').as('remote.room.turnoff')
 
+    //item
     Route.get('/:idBuilding/:idRoom', 'Web/ItemsController.index').as('remote.item.index')
     Route.get('/:idBuilding/:idRoom/status', 'Web/ItemsController.status').as('remote.item.status')
     Route.group(() => {
@@ -53,7 +57,9 @@ export default () => {
     })
       .prefix('/item')
       .middleware('role:superadmin')
-
+    Route.get('/:idBuilding/:idRoom/turnoff', 'Web/ItemsController.turnoff').as(
+      'remote.item.turnoff'
+    )
     Route.get('/:idBuilding/:idRoom/:idItem', 'Web/ItemsController.item')
       .as('remote.item')
       .middleware('permissionCheck:api')

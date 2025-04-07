@@ -1,7 +1,10 @@
 import type { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
 import { schema } from '@ioc:Adonis/Core/Validator'
 import ApiResponse from 'App/Helpers/ApiResponse'
+import MqttPublish from 'App/Helpers/MqttPublish'
 import Building from 'App/Models/Building'
+import Item from 'App/Models/Item'
+import Log from 'App/Models/Log'
 import Room from 'App/Models/Room'
 import StatSerialize from 'App/serializers/stat_serializer'
 
@@ -33,6 +36,35 @@ export default class RoomsController {
       await StatSerialize.collection(data),
       'Room Stat retrieved successfully'
     )
+  }
+
+  public async turnoff({ session, response, params }: HttpContextContract) {
+    const items = await Item.query()
+      .where('is_active', true)
+      .whereHas('room', (roomQuery) => {
+        roomQuery.where('building_id', params.idBuilding)
+      })
+
+    // Latar belakang update dan publish
+    setImmediate(async () => {
+      for (const item of items) {
+        try {
+          await MqttPublish.send(response, item.id, 'off')
+
+          item.isActive = false
+          await item.save()
+          const log = new Log()
+          log.itemId = item.id
+          log.isActive = false
+          await log.save()
+        } catch (err) {
+          console.error(`Gagal proses item ${item.id}:`, err)
+        }
+      }
+    })
+
+    session.flash('success', 'Turned off all devices in this room successfully')
+    return response.redirect().back()
   }
 
   public async store({ request, session, response }: HttpContextContract) {
