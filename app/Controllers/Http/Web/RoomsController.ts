@@ -45,7 +45,6 @@ export default class RoomsController {
         roomQuery.where('building_id', params.idBuilding)
       })
 
-    // Latar belakang update dan publish
     setImmediate(async () => {
       for (const item of items) {
         try {
@@ -63,7 +62,7 @@ export default class RoomsController {
       }
     })
 
-    session.flash('success', 'Turned off all devices in this room successfully')
+    session.flash('success', 'Turned off all devices in this building successfully')
     return response.redirect().back()
   }
 
