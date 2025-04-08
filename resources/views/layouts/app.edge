@@ -97,6 +97,11 @@
     <script src="/js/plugins.bundle.js"></script>
     <script src="/js/scripts.bundle.js"></script>
     @entryPointScripts('app')
+    <script>
+      if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('/serviceworker.js')
+      }
+    </script>
 	</body>
 
 </html>
