@@ -202,10 +202,17 @@
         method: 'GET',
         success: function(response) {
           var dataArray = response.data;
+          let turnOffButton = 0;
           dataArray.forEach(function(item) {
+            turnOffButton += item.activeCount;
             $('#active-' + item.id).text(item.activeCount);
             $('#inactive-' + item.id).text(item.inactiveCount);
           });
+          if (turnOffButton === 0) {
+            $('.btn-confirm').addClass('disabled');
+          } else {
+            $('.btn-confirm').removeClass('disabled');
+          }
         },
         error: function(xhr) {
           console.error('Error fetching data:', xhr);

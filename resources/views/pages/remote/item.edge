@@ -434,24 +434,31 @@ $(document).ready(function() {
         method: 'GET',
         success: function (response) {
           const dataArray = response.data;
+          let turnOffButton = 0;
 
           dataArray.forEach(function (item) {
+            turnOffButton += item.status;
+
             const statusBadge = item.status
               ? `
-                <span class="badge badge-light-success">
-                  <span class="badge badge-success badge-circle w-10px h-10px me-2"></span>
-                  Active
-                </span>
-              `
+                  <span class="badge badge-light-success">
+                    <span class="badge badge-success badge-circle w-10px h-10px me-2"></span>
+                    Active
+                  </span>`
               : `
-                <span class="badge badge-light-danger">
-                  <span class="badge badge-danger badge-circle w-10px h-10px me-2"></span>
-                  Inactive
-                </span>
-              `;
+                  <span class="badge badge-light-danger">
+                    <span class="badge badge-danger badge-circle w-10px h-10px me-2"></span>
+                    Inactive
+                  </span>`;
 
             $('#item-' + item.id).html(statusBadge);
           });
+
+          if (turnOffButton === 0) {
+            $('.btn-confirm').addClass('disabled');
+          } else {
+            $('.btn-confirm').removeClass('disabled');
+          }
         },
         error: function (xhr) {
           console.error('Error fetching data:', xhr);
@@ -463,6 +470,7 @@ $(document).ready(function() {
     setInterval(updateData, 1000);
   });
 </script>
+
 
 <script>
 $(function() {
